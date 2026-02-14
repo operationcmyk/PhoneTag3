@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct PhoneTag3App: App {
+    @StateObject var session = SessionManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(session)
         }
     }
 }
+
+

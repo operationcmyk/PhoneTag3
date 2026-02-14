@@ -6,21 +6,53 @@
 //
 
 import SwiftUI
+import UIKit
+
 
 struct ContentView: View {
+    @EnvironmentObject var session: SessionManager
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        ZStack{
+            mainBackground()
+            if(session.isLoggedIn){
+                HomeView()
+                    .zIndex(1)
+                    .transition(.asymmetric(
+                                      insertion: .move(edge: .trailing).combined(with: .opacity),
+                                      removal: .move(edge: .leading).combined(with: .opacity)
+                                  ))
+                                  .id("home")               }else{
+                SignInView()
+                                          .zIndex(1)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .leading).combined(with: .opacity),
+                        removal: .move(edge: .trailing).combined(with: .opacity)
+                    ))
+                    .id("login")
+
+            }
+
         }
-        .padding()
     }
 }
+
+struct mainBackground: View{
+    var body: some View{
+        VStack{
+            Image("arsenalblue")
+                .resizable()
+                .frame(maxWidth:.infinity, maxHeight:.infinity)
+                .edgesIgnoringSafeArea(.all)
+        }
+    }
+}
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+        .environmentObject(SessionManager())
     }
 }

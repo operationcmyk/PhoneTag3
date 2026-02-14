@@ -14,6 +14,11 @@
 		3F0707EB2F3FBD96007F1769 /* PhoneTag3Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0707EA2F3FBD96007F1769 /* PhoneTag3Tests.swift */; };
 		3F0707F52F3FBD96007F1769 /* PhoneTag3UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0707F42F3FBD96007F1769 /* PhoneTag3UITests.swift */; };
 		3F0707F72F3FBD96007F1769 /* PhoneTag3UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0707F62F3FBD96007F1769 /* PhoneTag3UITestsLaunchTests.swift */; };
+		3F0708082F40C941007F1769 /* sf_arch_rival_italic-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F0708062F40C941007F1769 /* sf_arch_rival_italic-webfont.ttf */; };
+		3F0708092F40C941007F1769 /* badabb__-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F0708072F40C941007F1769 /* badabb__-webfont.ttf */; };
+		3F07080B2F40CCBA007F1769 /* sessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F07080A2F40CCBA007F1769 /* sessionManager.swift */; };
+		3F07080D2F40DC12007F1769 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F07080C2F40DC11007F1769 /* SignInView.swift */; };
+		3F07080F2F40DC8B007F1769 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F07080E2F40DC8B007F1769 /* HomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +49,12 @@
 		3F0707F02F3FBD96007F1769 /* PhoneTag3UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhoneTag3UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F0707F42F3FBD96007F1769 /* PhoneTag3UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneTag3UITests.swift; sourceTree = "<group>"; };
 		3F0707F62F3FBD96007F1769 /* PhoneTag3UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneTag3UITestsLaunchTests.swift; sourceTree = "<group>"; };
+		3F0708032F3FD1EC007F1769 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		3F0708062F40C941007F1769 /* sf_arch_rival_italic-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "sf_arch_rival_italic-webfont.ttf"; path = "PhoneTag3/Assets.xcassets/fonts/sf_arch_rival_italic-webfont.ttf"; sourceTree = SOURCE_ROOT; };
+		3F0708072F40C941007F1769 /* badabb__-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "badabb__-webfont.ttf"; path = "PhoneTag3/Assets.xcassets/fonts/badabb__-webfont.ttf"; sourceTree = SOURCE_ROOT; };
+		3F07080A2F40CCBA007F1769 /* sessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sessionManager.swift; sourceTree = "<group>"; };
+		3F07080C2F40DC11007F1769 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		3F07080E2F40DC8B007F1769 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,10 +105,15 @@
 		3F0707D82F3FBD93007F1769 /* PhoneTag3 */ = {
 			isa = PBXGroup;
 			children = (
+				3F0708052F40C917007F1769 /* Fonts */,
+				3F0708032F3FD1EC007F1769 /* Info.plist */,
 				3F0707D92F3FBD93007F1769 /* PhoneTag3App.swift */,
 				3F0707DB2F3FBD93007F1769 /* ContentView.swift */,
+				3F07080C2F40DC11007F1769 /* SignInView.swift */,
+				3F07080E2F40DC8B007F1769 /* HomeView.swift */,
 				3F0707DD2F3FBD95007F1769 /* Assets.xcassets */,
 				3F0707DF2F3FBD95007F1769 /* Preview Content */,
+				3F07080A2F40CCBA007F1769 /* sessionManager.swift */,
 			);
 			path = PhoneTag3;
 			sourceTree = "<group>";
@@ -125,6 +141,15 @@
 				3F0707F62F3FBD96007F1769 /* PhoneTag3UITestsLaunchTests.swift */,
 			);
 			path = PhoneTag3UITests;
+			sourceTree = "<group>";
+		};
+		3F0708052F40C917007F1769 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				3F0708072F40C941007F1769 /* badabb__-webfont.ttf */,
+				3F0708062F40C941007F1769 /* sf_arch_rival_italic-webfont.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,7 +256,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F0708092F40C941007F1769 /* badabb__-webfont.ttf in Resources */,
 				3F0707E12F3FBD95007F1769 /* Preview Assets.xcassets in Resources */,
+				3F0708082F40C941007F1769 /* sf_arch_rival_italic-webfont.ttf in Resources */,
 				3F0707DE2F3FBD95007F1769 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -258,6 +285,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F0707DC2F3FBD93007F1769 /* ContentView.swift in Sources */,
+				3F07080B2F40CCBA007F1769 /* sessionManager.swift in Sources */,
+				3F07080D2F40DC12007F1769 /* SignInView.swift in Sources */,
+				3F07080F2F40DC8B007F1769 /* HomeView.swift in Sources */,
 				3F0707DA2F3FBD93007F1769 /* PhoneTag3App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -420,6 +450,7 @@
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PhoneTag3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -449,6 +480,7 @@
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PhoneTag3/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
