@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcode-select:*)",
+      "Bash(/opt/homebrew/bin/brew install:*)",
+      "Bash(xcodegen:*)",
+      "Bash(/opt/homebrew/bin/xcodegen:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}
