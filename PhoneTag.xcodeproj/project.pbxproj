@@ -1,0 +1,624 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C1C2C3C4C5C6C7C8C9D0D1D2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D1D2D3D4D5D6D7D8D9E0E1E2 /* FirebaseAuth */; };
+		04563DA4AAEF25EC4A709A78 /* PhoneTagApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98DA4BA41DFE55AE950E6789 /* PhoneTagApp.swift */; };
+		0C1D2E3F4A5B6C7D8E9F0A1B /* GameBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1B2C3D4E5F6A7B8C9D0E1F /* GameBoardView.swift */; };
+		15573B32DF1E921972F5097B /* SafeBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0CD5766A8BA40902A6F93 /* SafeBase.swift */; };
+		1C2D3E4F5A6B7C8D9E0F1A2B /* GameRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7A8B9C0D1E2F /* GameRepositoryProtocol.swift */; };
+		1D2E3F4A5B6C7D8E9F0A1B2C /* GameListRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B2C3D4E5F6A7B8C9D0E1F2A /* GameListRowView.swift */; };
+		2510D2CC2F455EF000269D74 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2510D2CB2F455EF000269D74 /* GoogleService-Info.plist */; };
+		2619AE589B839054B4B95EAA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 05E92EC5B3E94014F7CD3689 /* FirebaseMessaging */; };
+		2C3D4E5F6A7B8C9D0E1F2A3B /* UserRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3B4C5D6E7F8A9B0C1D2E3F /* UserRepositoryProtocol.swift */; };
+		2D3E4F5A6B7C8D9E0F1A2B3C /* PlayerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C4D5E6F7A8B9C0D1E2F3A /* PlayerStatusView.swift */; };
+		3C4D5E6F7A8B9C0D1E2F3A4B /* MockGameRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */; };
+		3D4E5F6A7B8C9D0E1F2A3B4C /* GameMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */; };
+		4C5D6E7F8A9B0C1D2E3F4A5B /* MockUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B6C7D8E9F0A1B2C3D4E5F /* MockUserRepository.swift */; };
+		4D5E6F7A8B9C0D1E2F3A4B5C /* HomeBaseSetupOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5C6D7E8F9A0B1C2D3E4F5A /* HomeBaseSetupOverlay.swift */; };
+		4E8DCEA438D53BB8AAA3BA21 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027DC12CC6282D8C5487AAAC /* User.swift */; };
+		5C6D7E8F9A0B1C2D3E4F5A6B /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6B7C8D9E0F1A2B3C4D5E6F /* HomeViewModel.swift */; };
+		5D6E7F8A9B0C1D2E3F4A5B6C /* GameBoardTopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6C7D8E9F0A1B2C3D4E5F6A /* GameBoardTopBar.swift */; };
+		5FE779341D59BB5A06EA4300 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8499598715A38421A5C4247 /* Tag.swift */; };
+		6C7D8E9F0A1B2C3D4E5F6A7B /* CreateGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A7B8C9D0E1F2A3B4C5D6E7F /* CreateGameViewModel.swift */; };
+		6C9348168ABACE6575DB8FC9 /* Tripwire.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEAEC86C53CA7D637A5FE68B /* Tripwire.swift */; };
+		6D7E8F9A0B1C2D3E4F5A6B7C /* GameBoardBottomBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7C8D9E0F1A2B3C4D5E6F7A /* GameBoardBottomBar.swift */; };
+		759088DEB9AC9A2F3F390F99 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2586FFA48CA25E019CDEBE98 /* FirebaseAnalytics */; };
+		7C8D9E0F1A2B3C4D5E6F7A8B /* GameBoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F3A4B5C6D7E8F /* GameBoardViewModel.swift */; };
+		8693D09515F58C485EB22501 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0078DE14B18B6CC8C52358E8 /* Constants.swift */; };
+		88CDD27E76E6E5F898772DEC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54191F44967C581D72B4B1A /* ContentView.swift */; };
+		8C9D0E1F2A3B4C5D6E7F8A9B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */; };
+		A1A2A3A4A5A6A7A8A9B0B1B2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2B3B4B5B6B7B8B9C0C1C2 /* LoginView.swift */; };
+		8E0293EA748E4FFB41F315D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6B09D11443C70A5FABD73D6 /* Assets.xcassets */; };
+		8F9A0B1C2D3E4F5A6B7C8D9E /* TagOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E8F9A0B1C2D3E4F5A6B7C8D /* TagOverlay.swift */; };
+		9BCA3903AA9EE3260B11A824 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 79BEB4347E8B9E8519EA9969 /* FirebaseDatabase */; };
+		9C0D1E2F3A4B5C6D7E8F9A0B /* CreateGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0B1C2D3E4F5A6B7C8D9E0F /* CreateGameView.swift */; };
+		A1234328CF8F3AE458CDCF40 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281341C023D13ACA2E1D60D2 /* Game.swift */; };
+		A7B8C9D0E1F2A3B4C5D6E7F8 /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* UserRepository.swift */; };
+		AA1B2C3D4E5F6A7B8C9D0E1F /* ArsenalDrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2C3D4E5F6A7B8C9D0E1F2A /* ArsenalDrawerView.swift */; };
+		BA28DDE33CCA24072134012A /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 060E2E608C98058641661205 /* Dependencies */; };
+		BB3C4D5E6F7A8B9C0D1E2F3A /* RadarBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC4D5E6F7A8B9C0D1E2F3A4B /* RadarBannerView.swift */; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* LocationService.swift */; };
+		DD2E3F4A5B6C7D8E9F0A1B2C /* StoreProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D2E3F4A5B6C7D8E9F0A1B /* StoreProduct.swift */; };
+		E988F7BC71F829B3B678FCAE /* CLLocationCoordinate2D+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D500A2D92C271D37675EFB2A /* CLLocationCoordinate2D+Codable.swift */; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* AuthService.swift */; };
+		F6B7C8D9E0F1A2B3C4D5E6F7 /* LocationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* LocationRepository.swift */; };
+		F9E14D3F0406B8835B4CB9CF /* PlayerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FAB7B07A239206C9444B127 /* PlayerState.swift */; };
+		FF4A5B6C7D8E9F0A1B2C3D4E /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0078DE14B18B6CC8C52358E8 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		027DC12CC6282D8C5487AAAC /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		0A1B2C3D4E5F6A7B8C9D0E1F /* GameBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F7A8B9C0D1E2F /* GameRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRepositoryProtocol.swift; sourceTree = "<group>"; };
+		1B2C3D4E5F6A7B8C9D0E1F2A /* GameListRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameListRowView.swift; sourceTree = "<group>"; };
+		2510D2CB2F455EF000269D74 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		253B387C2F4011120035B091 /* PhoneTag.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PhoneTag.entitlements; sourceTree = "<group>"; };
+		253B387D2F40111F0035B091 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		281341C023D13ACA2E1D60D2 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		2A3B4C5D6E7F8A9B0C1D2E3F /* UserRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepositoryProtocol.swift; sourceTree = "<group>"; };
+		2B3C4D5E6F7A8B9C0D1E2F3A /* PlayerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerStatusView.swift; sourceTree = "<group>"; };
+		2D7DB877EC382CC578E56C2A /* PhoneTag.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhoneTag.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		35F0CD5766A8BA40902A6F93 /* SafeBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeBase.swift; sourceTree = "<group>"; };
+		3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGameRepository.swift; sourceTree = "<group>"; };
+		3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMapView.swift; sourceTree = "<group>"; };
+		4A5B6C7D8E9F0A1B2C3D4E5F /* MockUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserRepository.swift; sourceTree = "<group>"; };
+		4B5C6D7E8F9A0B1C2D3E4F5A /* HomeBaseSetupOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeBaseSetupOverlay.swift; sourceTree = "<group>"; };
+		5A6B7C8D9E0F1A2B3C4D5E6F /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		5B6C7D8E9F0A1B2C3D4E5F6A /* GameBoardTopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardTopBar.swift; sourceTree = "<group>"; };
+		6A7B8C9D0E1F2A3B4C5D6E7F /* CreateGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGameViewModel.swift; sourceTree = "<group>"; };
+		6B7C8D9E0F1A2B3C4D5E6F7A /* GameBoardBottomBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardBottomBar.swift; sourceTree = "<group>"; };
+		6FAB7B07A239206C9444B127 /* PlayerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerState.swift; sourceTree = "<group>"; };
+		7A8B9C0D1E2F3A4B5C6D7E8F /* GameBoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardViewModel.swift; sourceTree = "<group>"; };
+		7E8F9A0B1C2D3E4F5A6B7C8D /* TagOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagOverlay.swift; sourceTree = "<group>"; };
+		8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		B1B2B3B4B5B6B7B8B9C0C1C2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		98DA4BA41DFE55AE950E6789 /* PhoneTagApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneTagApp.swift; sourceTree = "<group>"; };
+		9A0B1C2D3E4F5A6B7C8D9E0F /* CreateGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGameView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		AB2C3D4E5F6A7B8C9D0E1F2A /* ArsenalDrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArsenalDrawerView.swift; sourceTree = "<group>"; };
+		AEAEC86C53CA7D637A5FE68B /* Tripwire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tripwire.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
+		B6B09D11443C70A5FABD73D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BC4D5E6F7A8B9C0D1E2F3A4B /* RadarBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadarBannerView.swift; sourceTree = "<group>"; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		C8499598715A38421A5C4247 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		CC1D2E3F4A5B6C7D8E9F0A1B /* StoreProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreProduct.swift; sourceTree = "<group>"; };
+		D500A2D92C271D37675EFB2A /* CLLocationCoordinate2D+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CLLocationCoordinate2D+Codable.swift"; sourceTree = "<group>"; };
+		D54191F44967C581D72B4B1A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* LocationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRepository.swift; sourceTree = "<group>"; };
+		EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E5D673B6134BFE963F93FA9D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1C2C3C4C5C6C7C8C9D0D1D2 /* FirebaseAuth in Frameworks */,
+				9BCA3903AA9EE3260B11A824 /* FirebaseDatabase in Frameworks */,
+				2619AE589B839054B4B95EAA /* FirebaseMessaging in Frameworks */,
+				759088DEB9AC9A2F3F390F99 /* FirebaseAnalytics in Frameworks */,
+				BA28DDE33CCA24072134012A /* Dependencies in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		18CB5B53CE33E7D09FF64C7E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7D8E9F0A1B2C3D4E5F6A7B8C /* Components */,
+				D54191F44967C581D72B4B1A /* ContentView.swift */,
+				9A0B1C2D3E4F5A6B7C8D9E0F /* CreateGameView.swift */,
+				0A1B2C3D4E5F6A7B8C9D0E1F /* GameBoardView.swift */,
+				8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */,
+				B1B2B3B4B5B6B7B8B9C0C1C2 /* LoginView.swift */,
+				EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1DEBEC18F998A49DBA1D9768 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2D7DB877EC382CC578E56C2A /* PhoneTag.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		53C8336F3CE041939A675539 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2510D2CB2F455EF000269D74 /* GoogleService-Info.plist */,
+				B6B09D11443C70A5FABD73D6 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		57045BDFB0D625649F65D259 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				0078DE14B18B6CC8C52358E8 /* Constants.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		755904213EA78070822355DD = {
+			isa = PBXGroup;
+			children = (
+				EDC03A30EF0A0F310E44D0E6 /* PhoneTag */,
+				1DEBEC18F998A49DBA1D9768 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7D8E9F0A1B2C3D4E5F6A7B8C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				AB2C3D4E5F6A7B8C9D0E1F2A /* ArsenalDrawerView.swift */,
+				6B7C8D9E0F1A2B3C4D5E6F7A /* GameBoardBottomBar.swift */,
+				5B6C7D8E9F0A1B2C3D4E5F6A /* GameBoardTopBar.swift */,
+				1B2C3D4E5F6A7B8C9D0E1F2A /* GameListRowView.swift */,
+				3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */,
+				4B5C6D7E8F9A0B1C2D3E4F5A /* HomeBaseSetupOverlay.swift */,
+				2B3C4D5E6F7A8B9C0D1E2F3A /* PlayerStatusView.swift */,
+				BC4D5E6F7A8B9C0D1E2F3A4B /* RadarBannerView.swift */,
+				7E8F9A0B1C2D3E4F5A6B7C8D /* TagOverlay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		8D9E0F1A2B3C4D5E6F7A8B9C /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6A7B8C9D0E1F2A3B4C5D6E7F /* CreateGameViewModel.swift */,
+				7A8B9C0D1E2F3A4B5C6D7E8F /* GameBoardViewModel.swift */,
+				5A6B7C8D9E0F1A2B3C4D5E6F /* HomeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C9708A23E65298786B213170 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E82D4BAB3929F00391B8A298 /* Extensions */,
+				281341C023D13ACA2E1D60D2 /* Game.swift */,
+				6FAB7B07A239206C9444B127 /* PlayerState.swift */,
+				35F0CD5766A8BA40902A6F93 /* SafeBase.swift */,
+				CC1D2E3F4A5B6C7D8E9F0A1B /* StoreProduct.swift */,
+				C8499598715A38421A5C4247 /* Tag.swift */,
+				AEAEC86C53CA7D637A5FE68B /* Tripwire.swift */,
+				027DC12CC6282D8C5487AAAC /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E1F2A3B4C5D6E7F8A9B0C1D2 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* AuthService.swift */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* LocationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E82D4BAB3929F00391B8A298 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D500A2D92C271D37675EFB2A /* CLLocationCoordinate2D+Codable.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		EDC03A30EF0A0F310E44D0E6 /* PhoneTag */ = {
+			isa = PBXGroup;
+			children = (
+				253B387D2F40111F0035B091 /* Info.plist */,
+				253B387C2F4011120035B091 /* PhoneTag.entitlements */,
+				C9708A23E65298786B213170 /* Models */,
+				F2A3B4C5D6E7F8A9B0C1D2E3 /* Repositories */,
+				53C8336F3CE041939A675539 /* Resources */,
+				E1F2A3B4C5D6E7F8A9B0C1D2 /* Services */,
+				57045BDFB0D625649F65D259 /* Utilities */,
+				8D9E0F1A2B3C4D5E6F7A8B9C /* ViewModels */,
+				18CB5B53CE33E7D09FF64C7E /* Views */,
+				98DA4BA41DFE55AE950E6789 /* PhoneTagApp.swift */,
+			);
+			path = PhoneTag;
+			sourceTree = "<group>";
+		};
+		F2A3B4C5D6E7F8A9B0C1D2E3 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				1A2B3C4D5E6F7A8B9C0D1E2F /* GameRepositoryProtocol.swift */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* LocationRepository.swift */,
+				3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */,
+				4A5B6C7D8E9F0A1B2C3D4E5F /* MockUserRepository.swift */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* UserRepository.swift */,
+				2A3B4C5D6E7F8A9B0C1D2E3F /* UserRepositoryProtocol.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B7DF1680A4948A719893FA73 /* PhoneTag */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3BAAF2467276C2B69598F02 /* Build configuration list for PBXNativeTarget "PhoneTag" */;
+			buildPhases = (
+				9C8BE19A2CFC676F30B306D2 /* Sources */,
+				4B5ADE262053E7F7806E1D03 /* Resources */,
+				E5D673B6134BFE963F93FA9D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PhoneTag;
+			packageProductDependencies = (
+				D1D2D3D4D5D6D7D8D9E0E1E2 /* FirebaseAuth */,
+				79BEB4347E8B9E8519EA9969 /* FirebaseDatabase */,
+				05E92EC5B3E94014F7CD3689 /* FirebaseMessaging */,
+				2586FFA48CA25E019CDEBE98 /* FirebaseAnalytics */,
+				060E2E608C98058641661205 /* Dependencies */,
+			);
+			productName = PhoneTag;
+			productReference = 2D7DB877EC382CC578E56C2A /* PhoneTag.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F1DCB5B4EA8BDB84B9F2C0FF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					B7DF1680A4948A719893FA73 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 162EF612D26779EC3132D7A8 /* Build configuration list for PBXProject "PhoneTag" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 755904213EA78070822355DD;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				00A3C260B940957BCDD50871 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
+			);
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B7DF1680A4948A719893FA73 /* PhoneTag */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4B5ADE262053E7F7806E1D03 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E0293EA748E4FFB41F315D1 /* Assets.xcassets in Resources */,
+				2510D2CC2F455EF000269D74 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9C8BE19A2CFC676F30B306D2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E988F7BC71F829B3B678FCAE /* CLLocationCoordinate2D+Codable.swift in Sources */,
+				8693D09515F58C485EB22501 /* Constants.swift in Sources */,
+				88CDD27E76E6E5F898772DEC /* ContentView.swift in Sources */,
+				A1234328CF8F3AE458CDCF40 /* Game.swift in Sources */,
+				04563DA4AAEF25EC4A709A78 /* PhoneTagApp.swift in Sources */,
+				F9E14D3F0406B8835B4CB9CF /* PlayerState.swift in Sources */,
+				15573B32DF1E921972F5097B /* SafeBase.swift in Sources */,
+				5FE779341D59BB5A06EA4300 /* Tag.swift in Sources */,
+				6C9348168ABACE6575DB8FC9 /* Tripwire.swift in Sources */,
+				4E8DCEA438D53BB8AAA3BA21 /* User.swift in Sources */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* AuthService.swift in Sources */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* LocationService.swift in Sources */,
+				A7B8C9D0E1F2A3B4C5D6E7F8 /* UserRepository.swift in Sources */,
+				F6B7C8D9E0F1A2B3C4D5E6F7 /* LocationRepository.swift in Sources */,
+				1C2D3E4F5A6B7C8D9E0F1A2B /* GameRepositoryProtocol.swift in Sources */,
+				2C3D4E5F6A7B8C9D0E1F2A3B /* UserRepositoryProtocol.swift in Sources */,
+				3C4D5E6F7A8B9C0D1E2F3A4B /* MockGameRepository.swift in Sources */,
+				4C5D6E7F8A9B0C1D2E3F4A5B /* MockUserRepository.swift in Sources */,
+				5C6D7E8F9A0B1C2D3E4F5A6B /* HomeViewModel.swift in Sources */,
+				6C7D8E9F0A1B2C3D4E5F6A7B /* CreateGameViewModel.swift in Sources */,
+				7C8D9E0F1A2B3C4D5E6F7A8B /* GameBoardViewModel.swift in Sources */,
+				8C9D0E1F2A3B4C5D6E7F8A9B /* HomeView.swift in Sources */,
+				A1A2A3A4A5A6A7A8A9B0B1B2 /* LoginView.swift in Sources */,
+				9C0D1E2F3A4B5C6D7E8F9A0B /* CreateGameView.swift in Sources */,
+				0C1D2E3F4A5B6C7D8E9F0A1B /* GameBoardView.swift in Sources */,
+				1D2E3F4A5B6C7D8E9F0A1B2C /* GameListRowView.swift in Sources */,
+				2D3E4F5A6B7C8D9E0F1A2B3C /* PlayerStatusView.swift in Sources */,
+				3D4E5F6A7B8C9D0E1F2A3B4C /* GameMapView.swift in Sources */,
+				4D5E6F7A8B9C0D1E2F3A4B5C /* HomeBaseSetupOverlay.swift in Sources */,
+				5D6E7F8A9B0C1D2E3F4A5B6C /* GameBoardTopBar.swift in Sources */,
+				6D7E8F9A0B1C2D3E4F5A6B7C /* GameBoardBottomBar.swift in Sources */,
+				8F9A0B1C2D3E4F5A6B7C8D9E /* TagOverlay.swift in Sources */,
+				AA1B2C3D4E5F6A7B8C9D0E1F /* ArsenalDrawerView.swift in Sources */,
+				BB3C4D5E6F7A8B9C0D1E2F3A /* RadarBannerView.swift in Sources */,
+				DD2E3F4A5B6C7D8E9F0A1B2C /* StoreProduct.swift in Sources */,
+				FF4A5B6C7D8E9F0A1B2C3D4E /* StoreView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		056452FD4570E033C94A5686 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		0B2C6EA75BB0AE1B843B4E61 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PhoneTag/PhoneTag.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = PhoneTag/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to notify you when tagged and track tripwire crossings during active games.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show you on the map and enable tagging nearby players.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "location remote-notification";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.operationcmyk.phonetag;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1A6CBF7BCADCB6AF6F99DAC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		ACB371F549081B8713C08054 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PhoneTag/PhoneTag.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = PhoneTag/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to notify you when tagged and track tripwire crossings during active games.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show you on the map and enable tagging nearby players.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "location remote-notification";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.operationcmyk.phonetag;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		162EF612D26779EC3132D7A8 /* Build configuration list for PBXProject "PhoneTag" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A6CBF7BCADCB6AF6F99DAC5 /* Debug */,
+				056452FD4570E033C94A5686 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E3BAAF2467276C2B69598F02 /* Build configuration list for PBXNativeTarget "PhoneTag" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACB371F549081B8713C08054 /* Debug */,
+				0B2C6EA75BB0AE1B843B4E61 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		00A3C260B940957BCDD50871 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		05E92EC5B3E94014F7CD3689 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		060E2E608C98058641661205 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00A3C260B940957BCDD50871 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+		2586FFA48CA25E019CDEBE98 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		79BEB4347E8B9E8519EA9969 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		D1D2D3D4D5D6D7D8D9E0E1E2 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2EBFFDB23F6BBAA91284FB11 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F1DCB5B4EA8BDB84B9F2C0FF /* Project object */;
+}
