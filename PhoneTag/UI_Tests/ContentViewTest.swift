@@ -16,7 +16,7 @@ struct ContentViewTest: View {
         ZStack{
             mainBackground()
             if(session.isLoggedIn){
-                HomeView()
+                HomeViewTest()
                     .zIndex(1)
                     .transition(.asymmetric(
                                       insertion: .move(edge: .trailing).combined(with: .opacity),
