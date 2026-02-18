@@ -52,7 +52,7 @@ struct mainBackground: View{
 
 struct ContentViewTest_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentViewTest()
         .environmentObject(SessionManager())
     }
 }

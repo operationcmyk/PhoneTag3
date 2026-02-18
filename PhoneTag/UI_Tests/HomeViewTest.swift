@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct HomeViewTest: View {
     @EnvironmentObject var session: SessionManager
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
@@ -19,8 +19,8 @@ struct HomeView: View {
     }
 }
 
-struct HomeView_Previews: PreviewProvider {
+struct HomeViewTest_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        HomeViewTest()
     }
 }
