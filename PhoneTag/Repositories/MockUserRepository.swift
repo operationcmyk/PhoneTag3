@@ -55,7 +55,10 @@ final class MockUserRepository: UserRepositoryProtocol {
     }
 
     func fetchFriends(for userId: String) async -> [User] {
-        guard let user = users.first(where: { $0.id == userId }) else { return [] }
+        guard let user = users.first(where: { $0.id == userId }) else {
+            // Real Firebase UID — not in mock data. Return all mock users as friends.
+            return users
+        }
         return users.filter { user.friendIds.contains($0.id) }
     }
 
@@ -65,5 +68,18 @@ final class MockUserRepository: UserRepositoryProtocol {
             $0.displayName.lowercased().contains(lowered) ||
             $0.phoneNumber.contains(lowered)
         }
+    }
+
+    func addFriend(userId: String, friendPhone: String) async -> String? {
+        guard let friend = users.first(where: { $0.phoneNumber == friendPhone }) else {
+            return "No user found with that phone number."
+        }
+        guard friend.id != userId else { return "You can't add yourself." }
+        guard let idx = users.firstIndex(where: { $0.id == userId }) else { return "User not found." }
+        if users[idx].friendIds.contains(friend.id) {
+            return "You're already friends with \(friend.displayName)."
+        }
+        users[idx].friendIds.append(friend.id)
+        return nil
     }
 }

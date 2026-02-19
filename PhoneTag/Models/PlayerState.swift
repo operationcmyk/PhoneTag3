@@ -32,6 +32,23 @@ struct PlayerState: Codable, Sendable {
     }
 }
 
+// Firebase RTDB drops empty arrays (stores as null/missing).
+// Override only init(from:) in an extension so the memberwise initializer is preserved.
+extension PlayerState {
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        strikes = try c.decode(Int.self, forKey: .strikes)
+        tagsRemainingToday = try c.decode(Int.self, forKey: .tagsRemainingToday)
+        lastTagResetDate = try c.decode(Date.self, forKey: .lastTagResetDate)
+        homeBase1 = try c.decodeIfPresent(CLLocationCoordinate2D.self, forKey: .homeBase1)
+        homeBase2 = try c.decodeIfPresent(CLLocationCoordinate2D.self, forKey: .homeBase2)
+        safeBases = (try? c.decodeIfPresent([SafeBase].self, forKey: .safeBases)) ?? []
+        isActive = try c.decode(Bool.self, forKey: .isActive)
+        tripwires = (try? c.decodeIfPresent([Tripwire].self, forKey: .tripwires)) ?? []
+        purchasedTags = try c.decode(PurchasedTags.self, forKey: .purchasedTags)
+    }
+}
+
 struct PurchasedTags: Codable, Sendable {
     var extraBasicTags: Int
     var wideRadiusTags: Int

@@ -56,6 +56,10 @@
 		F6B7C8D9E0F1A2B3C4D5E6F7 /* LocationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* LocationRepository.swift */; };
 		F9E14D3F0406B8835B4CB9CF /* PlayerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FAB7B07A239206C9444B127 /* PlayerState.swift */; };
 		FF4A5B6C7D8E9F0A1B2C3D4E /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */; };
+		FB1B2C3D4E5F6A7B8C9DFF01 /* FirebaseUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1B2C3D4E5F6A7B8C9DFF01 /* FirebaseUserRepository.swift */; };
+		FB1B2C3D4E5F6A7B8C9DFF02 /* FirebaseGameRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1B2C3D4E5F6A7B8C9DFF02 /* FirebaseGameRepository.swift */; };
+		FB1B2C3D4E5F6A7B8C9DFF03 /* AddFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1B2C3D4E5F6A7B8C9DFF03 /* AddFriendView.swift */; };
+		FB1B2C3D4E5F6A7B8C9DFF04 /* SetDisplayNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1B2C3D4E5F6A7B8C9DFF04 /* SetDisplayNameView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -106,6 +110,10 @@
 		D54191F44967C581D72B4B1A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* LocationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRepository.swift; sourceTree = "<group>"; };
 		EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
+		FA1B2C3D4E5F6A7B8C9DFF01 /* FirebaseUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseUserRepository.swift; sourceTree = "<group>"; };
+		FA1B2C3D4E5F6A7B8C9DFF02 /* FirebaseGameRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseGameRepository.swift; sourceTree = "<group>"; };
+		FA1B2C3D4E5F6A7B8C9DFF03 /* AddFriendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFriendView.swift; sourceTree = "<group>"; };
+		FA1B2C3D4E5F6A7B8C9DFF04 /* SetDisplayNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetDisplayNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +142,8 @@
 				8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */,
 				B1B2B3B4B5B6B7B8B9C0C1C2 /* LoginView.swift */,
 				EE3F4A5B6C7D8E9F0A1B2C3D /* StoreView.swift */,
+				FA1B2C3D4E5F6A7B8C9DFF03 /* AddFriendView.swift */,
+				FA1B2C3D4E5F6A7B8C9DFF04 /* SetDisplayNameView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -277,6 +287,8 @@
 				4A5B6C7D8E9F0A1B2C3D4E5F /* MockUserRepository.swift */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* UserRepository.swift */,
 				2A3B4C5D6E7F8A9B0C1D2E3F /* UserRepositoryProtocol.swift */,
+				FA1B2C3D4E5F6A7B8C9DFF01 /* FirebaseUserRepository.swift */,
+				FA1B2C3D4E5F6A7B8C9DFF02 /* FirebaseGameRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -398,6 +410,10 @@
 				BB3C4D5E6F7A8B9C0D1E2F3A /* RadarBannerView.swift in Sources */,
 				DD2E3F4A5B6C7D8E9F0A1B2C /* StoreProduct.swift in Sources */,
 				FF4A5B6C7D8E9F0A1B2C3D4E /* StoreView.swift in Sources */,
+				FB1B2C3D4E5F6A7B8C9DFF01 /* FirebaseUserRepository.swift in Sources */,
+				FB1B2C3D4E5F6A7B8C9DFF02 /* FirebaseGameRepository.swift in Sources */,
+				FB1B2C3D4E5F6A7B8C9DFF03 /* AddFriendView.swift in Sources */,
+				FB1B2C3D4E5F6A7B8C9DFF04 /* SetDisplayNameView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

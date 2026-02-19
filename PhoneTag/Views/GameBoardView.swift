@@ -3,7 +3,9 @@ import MapKit
 
 struct GameBoardView: View {
     @Bindable var viewModel: GameBoardViewModel
+    @Environment(\.dismiss) private var dismiss
     @State private var showingStore = false
+    @State private var showingLeaveConfirm = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -90,6 +92,28 @@ struct GameBoardView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(role: .destructive) {
+                    showingLeaveConfirm = true
+                } label: {
+                    Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .confirmationDialog("Leave Game?", isPresented: $showingLeaveConfirm, titleVisibility: .visible) {
+            Button("Leave", role: .destructive) {
+                Task {
+                    await viewModel.leaveGame()
+                }
+            }
+        } message: {
+            Text("You'll be removed from \(viewModel.game.title). This can't be undone.")
+        }
+        .onChange(of: viewModel.didLeave) {
+            if viewModel.didLeave { dismiss() }
+        }
         .task {
             await viewModel.loadPlayerNames()
         }
@@ -124,7 +148,7 @@ struct GameBoardView: View {
 
     private func tagResultMessage(_ result: TagResult) -> String {
         switch result {
-        case .hit(_, let distance, let targetName):
+        case .hit(_, _, let targetName):
             return "Hit - \(targetName)"
         case .miss(let distance):
             return "Miss. Closest target was \(Int(distance))m away."

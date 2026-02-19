@@ -2,8 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var authService = AuthService()
-    @State private var gameRepository = MockGameRepository()
-    @State private var userRepository = MockUserRepository()
+    @State private var gameRepository = FirebaseGameRepository()
+    @State private var userRepository = FirebaseUserRepository()
     @State private var locationService = LocationService()
 
     var body: some View {
@@ -14,6 +14,9 @@ struct ContentView: View {
 
             case .unauthenticated:
                 LoginView(authService: authService)
+
+            case .needsDisplayName:
+                SetDisplayNameView(authService: authService)
 
             case .authenticated(let user):
                 HomeView(
@@ -39,6 +42,9 @@ extension AuthState {
         if case .authenticated = self { return true }
         return false
     }
+
+    // Used so the transition from needsDisplayName → authenticated animates correctly
+    var showsHomeContent: Bool { isAuthenticated }
 }
 
 #Preview {

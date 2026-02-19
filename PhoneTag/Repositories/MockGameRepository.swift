@@ -155,6 +155,16 @@ final class MockGameRepository: GameRepositoryProtocol {
         games.removeAll { $0.id == id }
     }
 
+    func leaveGame(gameId: String, userId: String) async {
+        guard let idx = games.firstIndex(where: { $0.id == gameId }) else { return }
+        games[idx].players[userId]?.isActive = false
+        let activePlayers = games[idx].players.values.filter(\.isActive)
+        if activePlayers.count <= 1 {
+            games[idx].status = .completed
+            games[idx].endedAt = Date()
+        }
+    }
+
     // MARK: - Tag Validation
 
     func submitTag(

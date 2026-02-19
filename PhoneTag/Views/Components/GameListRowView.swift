@@ -27,7 +27,7 @@ struct GameListRowView: View {
                 ForEach(Array(sortedPlayerIds.enumerated()), id: \.element) { index, playerId in
                     let state = game.players[playerId]!
                     let color = GameConstants.playerColors[index % GameConstants.playerColors.count]
-                    let label = playerId == currentUserId ? "You" : shortName(for: playerId)
+                    let label = shortName(for: playerId)
 
                     PlayerStatusView(
                         label: label,

@@ -10,6 +10,7 @@ struct HomeView: View {
 
     @State private var showingCreateGame = false
     @State private var showingStore = false
+    @State private var showingAddFriend = false
     @State private var playerNames: [String: String] = [:]
 
     var body: some View {
@@ -28,14 +29,28 @@ struct HomeView: View {
             .navigationTitle("Phone Tag")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showingStore = true
+                    Menu {
+                        Button {
+                            showingStore = true
+                        } label: {
+                            Label("Arsenal", systemImage: "flame.fill")
+                        }
+                        Divider()
+                        Button(role: .destructive) {
+                            authService.signOut()
+                        } label: {
+                            Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
                     } label: {
-                        Label("Arsenal", systemImage: "flame.fill")
+                        Label("Menu", systemImage: "line.3.horizontal")
                     }
-                    .tint(GameConstants.arsenalGold)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showingAddFriend = true
+                    } label: {
+                        Label("Add Friend", systemImage: "person.badge.plus")
+                    }
                     Button {
                         showingCreateGame = true
                     } label: {
@@ -55,6 +70,12 @@ struct HomeView: View {
                 ) {
                     Task { await viewModel.loadGames() }
                 }
+            }
+            .sheet(isPresented: $showingAddFriend) {
+                AddFriendView(
+                    currentUserId: user.id,
+                    userRepository: userRepository
+                )
             }
             .sheet(isPresented: $showingStore) {
                 StoreView(
@@ -112,13 +133,12 @@ struct HomeView: View {
             if !viewModel.completedGames.isEmpty {
                 Section("Completed Games") {
                     ForEach(viewModel.completedGames) { game in
-                        NavigationLink(value: game.id) {
-                            GameListRowView(
-                                game: game,
-                                currentUserId: user.id,
-                                playerNames: playerNames
-                            )
-                        }
+                        GameListRowView(
+                            game: game,
+                            currentUserId: user.id,
+                            playerNames: playerNames
+                        )
+                        .foregroundStyle(.secondary)
                     }
                     .onDelete { indexSet in
                         Task {

@@ -34,6 +34,7 @@ final class GameBoardViewModel {
     }
 
     // Arsenal & Tagging
+    var didLeave = false
     var isArsenalOpen = false
     var selectedArsenalItem: ArsenalItem?
     var isTagging = false
@@ -379,6 +380,12 @@ final class GameBoardViewModel {
     private func findGameIndex() -> Int? {
         // Only used internally for mock updates
         return nil
+    }
+
+    func leaveGame() async {
+        await gameRepository.leaveGame(gameId: game.id, userId: userId)
+        locationService.stopUpdatingLocation()
+        didLeave = true
     }
 
     func refreshGame() async {

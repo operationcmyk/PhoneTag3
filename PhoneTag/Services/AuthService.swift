@@ -1,9 +1,11 @@
 import Foundation
 @preconcurrency import FirebaseAuth
 
+
 enum AuthState: Sendable {
     case unknown
     case unauthenticated
+    case needsDisplayName(uid: String, phoneNumber: String)  // first login, no profile yet
     case authenticated(User)
 }
 
@@ -19,7 +21,7 @@ final class AuthService {
 
     private var authStateHandle: AuthStateDidChangeListenerHandle?
 
-    private let userRepository = UserRepository()
+    private let userRepository = FirebaseUserRepository()
 
     init() {
         listenToAuthState()
@@ -41,33 +43,31 @@ final class AuthService {
     }
 
     private func loadUser(firebaseUser: FirebaseAuth.User) async {
-        do {
-            if let user = try await userRepository.fetchUser(firebaseUser.uid) {
-                authState = .authenticated(user)
-            } else {
-                // First login — create user record in database
-                let displayName = firebaseUser.displayName ?? "Player"
-                let phone = firebaseUser.phoneNumber ?? ""
-                let user = try await userRepository.createUser(
-                    uid: firebaseUser.uid,
-                    phoneNumber: phone,
-                    displayName: displayName
-                )
-                authState = .authenticated(user)
-            }
-        } catch {
-            // Firebase is reachable (user is authenticated) but DB failed —
-            // fall back to a minimal local User so the app isn't stuck.
-            let user = User(
-                id: firebaseUser.uid,
-                phoneNumber: firebaseUser.phoneNumber ?? "",
-                displayName: firebaseUser.displayName ?? "Player",
-                createdAt: Date(),
-                friendIds: [],
-                activeGameIds: []
+        if let user = await userRepository.fetchUser(firebaseUser.uid) {
+            authState = .authenticated(user)
+        } else {
+            // First login — prompt the user to choose a display name
+            authState = .needsDisplayName(
+                uid: firebaseUser.uid,
+                phoneNumber: firebaseUser.phoneNumber ?? ""
             )
+        }
+    }
+
+    /// Called from SetDisplayNameView once the user submits their chosen name.
+    func createProfile(displayName: String) async {
+        guard case .needsDisplayName(let uid, let phone) = authState else { return }
+        isLoading = true
+        do {
+            let user = try await userRepository.createUser(uid: uid, phoneNumber: phone, displayName: displayName)
+            authState = .authenticated(user)
+        } catch {
+            // DB write failed — proceed with a local profile so the user isn't stuck
+            let user = User(id: uid, phoneNumber: phone, displayName: displayName,
+                            createdAt: Date(), friendIds: [], activeGameIds: [])
             authState = .authenticated(user)
         }
+        isLoading = false
     }
 
     // MARK: - Phone Auth
