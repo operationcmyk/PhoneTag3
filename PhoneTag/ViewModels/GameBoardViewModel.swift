@@ -19,19 +19,24 @@ final class GameBoardViewModel {
     private var hasCenteredOnUser = false
     private var locationUploadTask: Task<Void, Never>?
 
-    // Home base placement
+    // Safe zone placement (two required before game can start)
+    /// True when the player still needs to place one or both safe zones.
     var isSettingHomeBase: Bool {
         guard let state = myPlayerState else { return false }
-        return state.homeBase == nil
+        return !state.hasBothSafeZones
     }
 
+    /// Which safe zone is currently being placed (1 or 2).
+    var safeZonePlacementNumber: Int {
+        guard let state = myPlayerState else { return 1 }
+        return state.homeBase1 == nil ? 1 : 2
+    }
+
+    /// Temporary pin the player has dropped but not yet confirmed.
     var tempHomeBase: CLLocationCoordinate2D?
 
-    /// 0 = needs to place, 1 = placed awaiting confirm
-    var homeBasePlacementStep: Int {
-        if tempHomeBase == nil { return 0 }
-        return 1
-    }
+    /// Whether the player has dropped a pin for the current step.
+    var hasDroppedTempPin: Bool { tempHomeBase != nil }
 
     // Arsenal & Tagging
     var didLeave = false
@@ -80,14 +85,22 @@ final class GameBoardViewModel {
         playerColorMap[userId] ?? GameConstants.playerColors[0]
     }
 
-    /// All players' home bases (other than the current user) for map display.
+    /// All players' safe zones (other than the current user) for map display.
+    /// Each player can have up to 2 entries (one per safe zone).
     var otherPlayersHomeBases: [(name: String, coordinate: CLLocationCoordinate2D, color: Color)] {
-        game.players.compactMap { (playerId, state) in
-            guard playerId != userId, let base = state.homeBase else { return nil }
+        var results: [(name: String, coordinate: CLLocationCoordinate2D, color: Color)] = []
+        for (playerId, state) in game.players where playerId != userId {
             let name = playerNames[playerId] ?? "Player"
             let color = playerColorMap[playerId] ?? .blue
-            return (name: name, coordinate: base, color: color)
+            if let z1 = state.homeBase1 { results.append((name: "\(name) Zone 1", coordinate: z1, color: color)) }
+            if let z2 = state.homeBase2 { results.append((name: "\(name) Zone 2", coordinate: z2, color: color)) }
         }
+        return results
+    }
+
+    /// The current user's second safe zone (for map display).
+    var mySafeZone2: CLLocationCoordinate2D? {
+        myPlayerState?.homeBase2
     }
 
     var sortedPlayerIds: [String] {
@@ -117,21 +130,27 @@ final class GameBoardViewModel {
         }
     }
 
+    /// Drop a temporary pin at the tapped location for the current safe zone step.
     func placeHomeBase(at coordinate: CLLocationCoordinate2D) {
-        if tempHomeBase == nil {
-            tempHomeBase = coordinate
-        }
+        tempHomeBase = coordinate
     }
 
+    /// Remove the temporary pin so the player can re-tap a different spot.
     func undoPlacement() {
         tempHomeBase = nil
     }
 
+    /// Confirm and save the temporary pin as safe zone 1 or 2.
     func saveHomeBase() async {
         guard let base = tempHomeBase,
               var state = myPlayerState else { return }
 
-        state.homeBase = base
+        if state.homeBase1 == nil {
+            state.homeBase1 = base
+        } else {
+            state.homeBase2 = base
+        }
+
         await gameRepository.updatePlayerState(gameId: game.id, userId: userId, state: state)
 
         if let updated = await gameRepository.fetchGame(by: game.id) {

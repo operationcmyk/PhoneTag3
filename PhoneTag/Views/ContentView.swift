@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var gameRepository = FirebaseGameRepository()
     @State private var userRepository = FirebaseUserRepository()
     @State private var locationService = LocationService()
+    @State private var contactsService = ContactsService()
 
     var body: some View {
         Group {
@@ -25,7 +26,8 @@ struct ContentView: View {
                     viewModel: HomeViewModel(userId: user.id, gameRepository: gameRepository),
                     userRepository: userRepository,
                     gameRepository: gameRepository,
-                    locationService: locationService
+                    locationService: locationService,
+                    contactsService: contactsService
                 )
                 .task {
                     locationService.requestWhenInUseAuthorization()

@@ -70,6 +70,22 @@ final class MockUserRepository: UserRepositoryProtocol {
         }
     }
 
+    func updateDisplayName(userId: String, displayName: String) async throws {
+        guard let idx = users.firstIndex(where: { $0.id == userId }) else { return }
+        users[idx] = User(
+            id: users[idx].id,
+            phoneNumber: users[idx].phoneNumber,
+            displayName: displayName,
+            createdAt: users[idx].createdAt,
+            friendIds: users[idx].friendIds,
+            activeGameIds: users[idx].activeGameIds
+        )
+    }
+
+    func fetchUsersByPhones(_ phones: [String]) async -> [User] {
+        users.filter { user in phones.contains(user.phoneNumber) }
+    }
+
     func addFriend(userId: String, friendPhone: String) async -> String? {
         guard let friend = users.first(where: { $0.phoneNumber == friendPhone }) else {
             return "No user found with that phone number."

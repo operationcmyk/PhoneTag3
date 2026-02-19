@@ -165,6 +165,31 @@ final class MockGameRepository: GameRepositoryProtocol {
         }
     }
 
+    func joinGame(byCode code: String, userId: String) async -> Game? {
+        guard let idx = games.firstIndex(where: {
+            $0.registrationCode == code.uppercased()
+        }) else { return nil }
+
+        // Already a player — just return the game
+        if games[idx].players[userId] != nil { return games[idx] }
+
+        guard games[idx].status == .waiting else { return nil }
+
+        let newState = PlayerState(
+            strikes: GameConstants.startingStrikes,
+            tagsRemainingToday: GameConstants.dailyTagLimit,
+            lastTagResetDate: Date(),
+            homeBase1: nil,
+            homeBase2: nil,
+            safeBases: [],
+            isActive: true,
+            tripwires: [],
+            purchasedTags: PurchasedTags(extraBasicTags: 0, wideRadiusTags: 0, radars: 0, tripwires: 0)
+        )
+        games[idx].players[userId] = newState
+        return games[idx]
+    }
+
     // MARK: - Tag Validation
 
     func submitTag(

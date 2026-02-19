@@ -11,6 +11,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>Phone Tag uses your contacts to show which friends are already on the app and to make it easy to invite others to your game.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Phone Tag needs your location to show your position on the map and let other players tag you during games.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

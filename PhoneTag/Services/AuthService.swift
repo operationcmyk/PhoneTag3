@@ -104,6 +104,24 @@ final class AuthService {
         isLoading = false
     }
 
+    // MARK: - Profile Updates
+
+    /// Updates the display name in Firebase and refreshes the local auth state.
+    func updateDisplayName(_ newName: String) async throws {
+        guard let user = currentUser else { return }
+        try await userRepository.updateDisplayName(userId: user.id, displayName: newName)
+        // Refresh local state with the new name
+        let updated = User(
+            id: user.id,
+            phoneNumber: user.phoneNumber,
+            displayName: newName,
+            createdAt: user.createdAt,
+            friendIds: user.friendIds,
+            activeGameIds: user.activeGameIds
+        )
+        authState = .authenticated(updated)
+    }
+
     // MARK: - Sign Out
 
     func signOut() {
