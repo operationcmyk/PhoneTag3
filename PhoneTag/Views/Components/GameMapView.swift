@@ -3,10 +3,12 @@ import MapKit
 
 struct GameMapView: View {
     @Binding var cameraPosition: MapCameraPosition
-    let homeBase: CLLocationCoordinate2D?
+    let homeBase: CLLocationCoordinate2D?        // my safe zone 1
+    let homeBase2: CLLocationCoordinate2D?       // my safe zone 2
     let homeBaseColor: Color
     let otherPlayersHomeBases: [(name: String, coordinate: CLLocationCoordinate2D, color: Color)]
     let tempHomeBase: CLLocationCoordinate2D?
+    let safeZonePlacementNumber: Int             // 1 or 2 — which zone the temp pin belongs to
     let safeBases: [SafeBase]
     let tags: [Tag]
     let radarResult: RadarResult?
@@ -22,39 +24,73 @@ struct GameMapView: View {
                 Map(position: $cameraPosition) {
                     UserAnnotation()
 
-                    // Saved home base
+                    // My Safe Zone 1
                     if let hb = homeBase {
-                        Annotation("Home Base", coordinate: hb) {
-                            Image(systemName: "house.fill")
-                                .font(.title2)
-                                .foregroundStyle(homeBaseColor)
-                                .shadow(radius: 2)
+                        Annotation("Safe Zone 1", coordinate: hb) {
+                            ZStack {
+                                Circle()
+                                    .fill(homeBaseColor.opacity(0.2))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "shield.fill")
+                                    .font(.callout)
+                                    .foregroundStyle(homeBaseColor)
+                            }
+                            .shadow(radius: 2)
                         }
                         MapCircle(center: hb, radius: GameConstants.homeBaseRadius)
                             .foregroundStyle(homeBaseColor.opacity(0.15))
                             .stroke(homeBaseColor, lineWidth: 2)
                     }
 
-                    // Other players' home bases
+                    // My Safe Zone 2
+                    if let hb2 = homeBase2 {
+                        Annotation("Safe Zone 2", coordinate: hb2) {
+                            ZStack {
+                                Circle()
+                                    .fill(homeBaseColor.opacity(0.2))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "shield.lefthalf.filled")
+                                    .font(.callout)
+                                    .foregroundStyle(homeBaseColor)
+                            }
+                            .shadow(radius: 2)
+                        }
+                        MapCircle(center: hb2, radius: GameConstants.homeBaseRadius)
+                            .foregroundStyle(homeBaseColor.opacity(0.15))
+                            .stroke(homeBaseColor, lineWidth: 2)
+                    }
+
+                    // Other players' safe zones
                     ForEach(Array(otherPlayersHomeBases.enumerated()), id: \.offset) { _, player in
                         Annotation(player.name, coordinate: player.coordinate) {
-                            Image(systemName: "house.fill")
-                                .font(.title2)
-                                .foregroundStyle(player.color)
-                                .shadow(radius: 2)
+                            ZStack {
+                                Circle()
+                                    .fill(player.color.opacity(0.2))
+                                    .frame(width: 28, height: 28)
+                                Image(systemName: "shield.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(player.color)
+                            }
+                            .shadow(radius: 2)
                         }
                         MapCircle(center: player.coordinate, radius: GameConstants.homeBaseRadius)
                             .foregroundStyle(player.color.opacity(0.15))
                             .stroke(player.color, lineWidth: 2)
                     }
 
-                    // Temporary pin during placement
+                    // Temporary pin during safe zone placement
                     if let temp = tempHomeBase {
-                        Annotation("Home Base", coordinate: temp) {
-                            Image(systemName: "house.fill")
-                                .font(.title2)
-                                .foregroundStyle(.orange)
-                                .shadow(radius: 2)
+                        let label = "Safe Zone \(safeZonePlacementNumber)"
+                        Annotation(label, coordinate: temp) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.orange.opacity(0.25))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "shield.fill")
+                                    .font(.callout)
+                                    .foregroundStyle(.orange)
+                            }
+                            .shadow(radius: 2)
                         }
                         MapCircle(center: temp, radius: GameConstants.homeBaseRadius)
                             .foregroundStyle(.orange.opacity(0.15))

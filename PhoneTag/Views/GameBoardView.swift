@@ -12,10 +12,12 @@ struct GameBoardView: View {
             // Full-screen map
             GameMapView(
                 cameraPosition: $viewModel.cameraPosition,
-                homeBase: viewModel.myPlayerState?.homeBase,
+                homeBase: viewModel.myPlayerState?.homeBase1,
+                homeBase2: viewModel.mySafeZone2,
                 homeBaseColor: viewModel.myColor,
                 otherPlayersHomeBases: viewModel.otherPlayersHomeBases,
                 tempHomeBase: viewModel.tempHomeBase,
+                safeZonePlacementNumber: viewModel.safeZonePlacementNumber,
                 safeBases: viewModel.myPlayerState?.safeBases ?? [],
                 tags: viewModel.visibleTags,
                 radarResult: viewModel.showingRadar ? viewModel.radarResult : nil,
@@ -48,7 +50,8 @@ struct GameBoardView: View {
 
                 if viewModel.isSettingHomeBase {
                     HomeBaseSetupOverlay(
-                        hasPlaced: viewModel.tempHomeBase != nil,
+                        stepNumber: viewModel.safeZonePlacementNumber,
+                        hasDroppedPin: viewModel.hasDroppedTempPin,
                         onUndo: { viewModel.undoPlacement() },
                         onConfirm: {
                             Task { await viewModel.saveHomeBase() }

@@ -58,6 +58,24 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
         }
     }
 
+    func updateDisplayName(userId: String, displayName: String) async throws {
+        try await database
+            .child(GameConstants.FirebasePath.users)
+            .child(userId)
+            .child("displayName")
+            .setValue(displayName)
+    }
+
+    func fetchUsersByPhones(_ phones: [String]) async -> [User] {
+        var users: [User] = []
+        for phone in phones {
+            if let user = await searchByPhone(phone) {
+                users.append(user)
+            }
+        }
+        return users
+    }
+
     // MARK: - User Creation (used by AuthService)
 
     func createUser(uid: String, phoneNumber: String, displayName: String) async throws -> User {
@@ -106,7 +124,7 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
             .child(userId)
             .child("friendIds")
         let snapshot = try await ref.getData()
-        var ids = (snapshot.value as? [String]) ?? []
+        var ids = Self.parseStringArray(snapshot.value)
         guard !ids.contains(friendId) else { return }
         ids.append(friendId)
         try await ref.setValue(ids)
@@ -115,8 +133,8 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
     private func parseUser(id: String, dict: [String: Any]) -> User {
         let phoneNumber = dict["phoneNumber"] as? String ?? ""
         let displayName = dict["displayName"] as? String ?? "Player"
-        let friendIds = dict["friendIds"] as? [String] ?? []
-        let activeGameIds = dict["activeGameIds"] as? [String] ?? []
+        let friendIds = Self.parseStringArray(dict["friendIds"])
+        let activeGameIds = Self.parseStringArray(dict["activeGameIds"])
         let createdAt: Date
         if let ts = dict["createdAt"] as? TimeInterval {
             createdAt = Date(timeIntervalSince1970: ts / 1000)
@@ -131,5 +149,18 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
             friendIds: friendIds,
             activeGameIds: activeGameIds
         )
+    }
+
+    /// Handles both a true JSON array ([String]) and Firebase's dict-of-indices (["0": "id1", "1": "id2"])
+    private static func parseStringArray(_ value: Any?) -> [String] {
+        if let array = value as? [String] {
+            return array
+        }
+        if let dict = value as? [String: Any] {
+            return dict
+                .sorted { (Int($0.key) ?? 0) < (Int($1.key) ?? 0) }
+                .compactMap { $0.value as? String }
+        }
+        return []
     }
 }

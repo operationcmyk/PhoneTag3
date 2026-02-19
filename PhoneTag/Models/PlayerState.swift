@@ -6,13 +6,24 @@ struct PlayerState: Codable, Sendable {
     var strikes: Int                        // 3 at game start
     var tagsRemainingToday: Int             // Resets to dailyTagLimit at midnight (not additive)
     var lastTagResetDate: Date              // Date of the last daily reset
-    var homeBase1: CLLocationCoordinate2D?
-    var homeBase2: CLLocationCoordinate2D?
+    var homeBase1: CLLocationCoordinate2D?  // Safe Zone 1
+    var homeBase2: CLLocationCoordinate2D?  // Safe Zone 2
 
-    /// Convenience accessor — currently the game uses a single home base (`homeBase1`).
+    /// Convenience: returns homeBase1 (used for backward-compat map display).
+    /// Use `safeZone1` / `safeZone2` when reading individual zones.
     var homeBase: CLLocationCoordinate2D? {
         get { homeBase1 }
         set { homeBase1 = newValue }
+    }
+
+    /// True only when both safe zones have been placed.
+    var hasBothSafeZones: Bool {
+        homeBase1 != nil && homeBase2 != nil
+    }
+
+    /// How many safe zones the player has placed (0, 1, or 2).
+    var safeZonesPlaced: Int {
+        (homeBase1 != nil ? 1 : 0) + (homeBase2 != nil ? 1 : 0)
     }
     var safeBases: [SafeBase]
     var isActive: Bool                      // false when strikes = 0

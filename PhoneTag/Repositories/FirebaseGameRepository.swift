@@ -28,15 +28,67 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                 .child(userId)
                 .child("activeGameIds")
                 .getData()
-            let gameIds = (snapshot.value as? [String]) ?? []
+
+            print("🔍 [fetchGames] userId=\(userId)")
+            print("🔍 [fetchGames] snapshot exists=\(snapshot.exists()), raw value=\(String(describing: snapshot.value))")
+
+            var gameIds = Self.parseStringArray(snapshot.value)
+            print("🔍 [fetchGames] parsed gameIds=\(gameIds)")
+
+            // Fallback: if no gameIds found in user node, scan all games for this player
+            if gameIds.isEmpty {
+                print("🔍 [fetchGames] no activeGameIds — scanning all games for userId=\(userId)")
+                gameIds = await scanAllGames(forUserId: userId)
+                print("🔍 [fetchGames] scan found gameIds=\(gameIds)")
+
+                // Backfill the user's activeGameIds so future fetches are fast
+                if !gameIds.isEmpty {
+                    let ref = database
+                        .child(GameConstants.FirebasePath.users)
+                        .child(userId)
+                        .child("activeGameIds")
+                    try? await ref.setValue(gameIds)
+                    print("✅ [fetchGames] backfilled activeGameIds for userId=\(userId)")
+                }
+            }
+
             var games: [Game] = []
             for gameId in gameIds {
                 if let game = await fetchGame(by: gameId) {
                     games.append(game)
+                    print("✅ [fetchGames] loaded game id=\(gameId) title=\(game.title)")
+                } else {
+                    print("❌ [fetchGames] failed to load game id=\(gameId)")
                 }
             }
             return games
         } catch {
+            print("❌ [fetchGames] error=\(error)")
+            return []
+        }
+    }
+
+    /// Scans every game in /games and returns IDs of games where `userId` appears in `players`.
+    /// This is a fallback for when a user's `activeGameIds` node is missing.
+    private func scanAllGames(forUserId userId: String) async -> [String] {
+        do {
+            let snapshot = try await database
+                .child(GameConstants.FirebasePath.games)
+                .getData()
+            guard snapshot.exists(), let allGames = snapshot.value as? [String: Any] else {
+                return []
+            }
+            var found: [String] = []
+            for (gameId, gameValue) in allGames {
+                guard let gameDict = gameValue as? [String: Any],
+                      let players = gameDict["players"] as? [String: Any],
+                      players[userId] != nil else { continue }
+                // Skip completed games that are very old — optional, keep all for now
+                found.append(gameId)
+            }
+            return found
+        } catch {
+            print("❌ [scanAllGames] error=\(error)")
             return []
         }
     }
@@ -47,9 +99,14 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                 .child(GameConstants.FirebasePath.games)
                 .child(id)
                 .getData()
-            guard snapshot.exists(), let value = snapshot.value else { return nil }
-            return try decodeGame(id: id, from: value)
+            guard snapshot.exists(), let value = snapshot.value else {
+                print("❌ [fetchGame] id=\(id) snapshot missing or nil")
+                return nil
+            }
+            let game = try decodeGame(id: id, from: value)
+            return game
         } catch {
+            print("❌ [fetchGame] id=\(id) decode error=\(error)")
             return nil
         }
     }
@@ -91,6 +148,12 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         do {
             let dict = try encodeGame(game)
             try await ref.setValue(dict)
+
+            // Store reverse-lookup index so joinGame can find game by code without a query index
+            try await database
+                .child(GameConstants.FirebasePath.registrationCodes)
+                .child(game.registrationCode)
+                .setValue(gameId)
 
             // Add this gameId to every player's activeGameIds list
             for pid in allPlayerIds {
@@ -338,6 +401,57 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         }
     }
 
+    // MARK: - Join by Code
+
+    func joinGame(byCode code: String, userId: String) async -> Game? {
+        do {
+            // Direct key lookup — no Firebase index required
+            let codeSnapshot = try await database
+                .child(GameConstants.FirebasePath.registrationCodes)
+                .child(code.uppercased())
+                .getData()
+            guard codeSnapshot.exists(), let gameId = codeSnapshot.value as? String else { return nil }
+
+            guard var game = await fetchGame(by: gameId) else { return nil }
+
+            // Already a player — just surface the game
+            if game.players[userId] != nil {
+                try await appendGameId(gameId, toUser: userId)
+                return game
+            }
+
+            // Game must still be in waiting state to accept new players
+            guard game.status == .waiting else { return nil }
+
+            let newState = PlayerState(
+                strikes: GameConstants.startingStrikes,
+                tagsRemainingToday: GameConstants.dailyTagLimit,
+                lastTagResetDate: Date(),
+                homeBase1: nil,
+                homeBase2: nil,
+                safeBases: [],
+                isActive: true,
+                tripwires: [],
+                purchasedTags: PurchasedTags(extraBasicTags: 0, wideRadiusTags: 0, radars: 0, tripwires: 0)
+            )
+            game.players[userId] = newState
+
+            let playerData = try fbEncoder.encode(newState)
+            let playerDict = try JSONSerialization.jsonObject(with: playerData) as? [String: Any] ?? [:]
+            try await database
+                .child(GameConstants.FirebasePath.games)
+                .child(gameId)
+                .child("players")
+                .child(userId)
+                .setValue(playerDict)
+
+            try await appendGameId(gameId, toUser: userId)
+            return game
+        } catch {
+            return nil
+        }
+    }
+
     // MARK: - Private Helpers
 
     private func fetchPlayerLocation(userId: String) async -> CLLocationCoordinate2D? {
@@ -371,7 +485,8 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
 
     private func activateIfReady(gameId: String) async {
         guard let game = await fetchGame(by: gameId), game.status == .waiting else { return }
-        let allReady = game.players.values.allSatisfy { $0.homeBase != nil }
+        // All players must have placed BOTH safe zones before the game goes active
+        let allReady = game.players.values.allSatisfy { $0.hasBothSafeZones }
         guard allReady else { return }
         do {
             try await database
@@ -411,7 +526,7 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             .child(userId)
             .child("activeGameIds")
         let snapshot = try await ref.getData()
-        var ids = (snapshot.value as? [String]) ?? []
+        var ids = Self.parseStringArray(snapshot.value)
         guard !ids.contains(gameId) else { return }
         ids.append(gameId)
         try await ref.setValue(ids)
@@ -423,9 +538,23 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             .child(userId)
             .child("activeGameIds")
         let snapshot = try await ref.getData()
-        var ids = (snapshot.value as? [String]) ?? []
+        var ids = Self.parseStringArray(snapshot.value)
         ids.removeAll { $0 == gameId }
         try await ref.setValue(ids.isEmpty ? NSNull() : ids as Any)
+    }
+
+    /// Handles both a true JSON array ([String]) and Firebase's dict-of-indices (["0": "id1", "1": "id2"])
+    private static func parseStringArray(_ value: Any?) -> [String] {
+        if let array = value as? [String] {
+            return array
+        }
+        if let dict = value as? [String: Any] {
+            // Sort by numeric key so order is preserved
+            return dict
+                .sorted { (Int($0.key) ?? 0) < (Int($1.key) ?? 0) }
+                .compactMap { $0.value as? String }
+        }
+        return []
     }
 
     // MARK: - Serialization

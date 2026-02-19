@@ -7,29 +7,27 @@ struct HomeView: View {
     let userRepository: any UserRepositoryProtocol
     let gameRepository: any GameRepositoryProtocol
     let locationService: LocationService
+    let contactsService: ContactsService
 
     @State private var showingCreateGame = false
+    @State private var showingJoinGame = false
     @State private var showingStore = false
     @State private var showingAddFriend = false
+    @State private var showingProfile = false
     @State private var playerNames: [String: String] = [:]
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.games.isEmpty && !viewModel.isLoading {
-                    ContentUnavailableView(
-                        "No Games Yet",
-                        systemImage: "mappin.and.ellipse",
-                        description: Text("Tap \"Start Game\" to begin playing.")
-                    )
-                } else {
-                    gameList
-                }
-            }
+            gameList
             .navigationTitle("Phone Tag")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
+                        Button {
+                            showingProfile = true
+                        } label: {
+                            Label("My Account", systemImage: "person.circle")
+                        }
                         Button {
                             showingStore = true
                         } label: {
@@ -52,6 +50,11 @@ struct HomeView: View {
                         Label("Add Friend", systemImage: "person.badge.plus")
                     }
                     Button {
+                        showingJoinGame = true
+                    } label: {
+                        Label("Join Game", systemImage: "person.badge.key.fill")
+                    }
+                    Button {
                         showingCreateGame = true
                     } label: {
                         Label("Start Game", systemImage: "plus.circle.fill")
@@ -62,11 +65,23 @@ struct HomeView: View {
                 await viewModel.loadGames()
                 await loadPlayerNames()
             }
+            .sheet(isPresented: $showingProfile) {
+                ProfileView(user: user, authService: authService)
+            }
+            .sheet(isPresented: $showingJoinGame) {
+                JoinGameView(
+                    userId: user.id,
+                    gameRepository: gameRepository
+                ) { _ in
+                    Task { await viewModel.loadGames() }
+                }
+            }
             .sheet(isPresented: $showingCreateGame) {
                 CreateGameView(
                     userId: user.id,
                     userRepository: userRepository,
-                    gameRepository: gameRepository
+                    gameRepository: gameRepository,
+                    contactsService: contactsService
                 ) {
                     Task { await viewModel.loadGames() }
                 }
@@ -108,6 +123,16 @@ struct HomeView: View {
 
     private var gameList: some View {
         List {
+            if viewModel.games.isEmpty && !viewModel.isLoading {
+                ContentUnavailableView(
+                    "No Games Yet",
+                    systemImage: "mappin.and.ellipse",
+                    description: Text("Pull to refresh, or tap \"Start Game\" to begin playing.")
+                )
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+
             if !viewModel.activeGames.isEmpty {
                 Section("Current Games") {
                     ForEach(viewModel.activeGames) { game in

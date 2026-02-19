@@ -15,4 +15,5 @@ protocol GameRepositoryProtocol {
     func placeTripwire(gameId: String, userId: String, tripwire: Tripwire)
     func purchaseItem(userId: String, product: StoreProduct) async
     func resetDailyTagsIfNeeded(gameId: String, userId: String)
+    func joinGame(byCode code: String, userId: String) async -> Game?
 }
