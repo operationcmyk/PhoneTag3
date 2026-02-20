@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var locationService = LocationService()
     @State private var contactsService = ContactsService()
     @State private var userLocationManager: UserLocationManager?
+    @State private var homeViewModel: HomeViewModel?
 
     var body: some View {
         Group {
@@ -19,21 +20,31 @@ struct ContentView: View {
                     .onAppear {
                         userLocationManager?.stop()
                         userLocationManager = nil
+                        homeViewModel = nil
                     }
 
             case .needsDisplayName:
                 SetDisplayNameView(authService: authService)
 
             case .authenticated(let user):
+                let vm = homeViewModel ?? {
+                    let newVM = HomeViewModel(userId: user.id, gameRepository: gameRepository)
+                    return newVM
+                }()
                 HomeView(
                     user: user,
                     authService: authService,
-                    viewModel: HomeViewModel(userId: user.id, gameRepository: gameRepository),
+                    viewModel: vm,
                     userRepository: userRepository,
                     gameRepository: gameRepository,
                     locationService: locationService,
                     contactsService: contactsService
                 )
+                .onAppear {
+                    if homeViewModel == nil {
+                        homeViewModel = vm
+                    }
+                }
                 .onAppear {
                     // Start once per session; guard prevents restarting on every re-appear.
                     guard userLocationManager == nil else { return }
