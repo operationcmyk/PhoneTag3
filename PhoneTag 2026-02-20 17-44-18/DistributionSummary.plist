@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PhoneTag.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>1</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>3D53AB8FA554FD8B4CC88791CC7C12B6FB760328</string>
+				<key>dateExpires</key>
+				<string>2/20/27</string>
+				<key>type</key>
+				<string>Cloud Managed Apple Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>3D53AB8FA554FD8B4CC88791CC7C12B6FB760328</string>
+						<key>dateExpires</key>
+						<string>2/20/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>FirebaseAnalytics.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>AG222ADDHU</string>
+						<key>name</key>
+						<string>Operation:CMYK LLC</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>11.15.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>2.3.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>3D53AB8FA554FD8B4CC88791CC7C12B6FB760328</string>
+						<key>dateExpires</key>
+						<string>2/20/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>GoogleAdsOnDeviceConversion.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>AG222ADDHU</string>
+						<key>name</key>
+						<string>Operation:CMYK LLC</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>2.3.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>3D53AB8FA554FD8B4CC88791CC7C12B6FB760328</string>
+						<key>dateExpires</key>
+						<string>2/20/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>GoogleAppMeasurement.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>AG222ADDHU</string>
+						<key>name</key>
+						<string>Operation:CMYK LLC</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>11.15.0</string>
+				</dict>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>1</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>3D53AB8FA554FD8B4CC88791CC7C12B6FB760328</string>
+						<key>dateExpires</key>
+						<string>2/20/27</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>GoogleAppMeasurementIdentitySupport.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>AG222ADDHU</string>
+						<key>name</key>
+						<string>Operation:CMYK LLC</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>11.15.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>AG222ADDHU.com.operationcmyk.phonetag</string>
+				<key>aps-environment</key>
+				<string>production</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>AG222ADDHU</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>PhoneTag.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>a39fb43e-39ad-4735-8990-e0954952dc69</string>
+				<key>dateExpires</key>
+				<string>2/20/27</string>
+				<key>name</key>
+				<string>iOS Team Ad Hoc Provisioning Profile: com.operationcmyk.phonetag</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>AG222ADDHU</string>
+				<key>name</key>
+				<string>Operation:CMYK LLC</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>2.0</string>
+		</dict>
+	</array>
+</dict>
+</plist>
