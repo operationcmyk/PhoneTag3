@@ -1,7 +1,8 @@
 import Foundation
+import UIKit
 import UserNotifications
 @preconcurrency import FirebaseMessaging
-import FirebaseDatabase
+@preconcurrency import FirebaseDatabase
 import FirebaseFunctions
 
 // MARK: - Notification Types
@@ -23,6 +24,9 @@ final class NotificationService: NSObject, ObservableObject {
 
     @Published var permissionStatus: UNAuthorizationStatus = .notDetermined
     @Published var fcmToken: String?
+
+    /// Kept so APNs/FCM callbacks can re-save the token without needing the caller to pass userId again.
+    private(set) var currentUserId: String?
 
     private let database = Database.database().reference()
     private let functions = Functions.functions()
@@ -75,8 +79,14 @@ final class NotificationService: NSObject, ObservableObject {
 
     /// Called by AppDelegate when APNs vends a device token.
     /// Passes the token to FirebaseMessaging so it can derive the FCM token.
+    /// FCM needs the APNs token before it can vend its own token, so we
+    /// attempt to re-save immediately after handing it off.
     func didRegisterForRemoteNotifications(deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+        // Re-attempt token save now that APNs token is available.
+        if let userId = currentUserId {
+            Task { await saveFCMToken(for: userId) }
+        }
     }
 
     /// Called by AppDelegate when APNs registration fails.
@@ -89,6 +99,7 @@ final class NotificationService: NSObject, ObservableObject {
     /// Fetches the current FCM token from Messaging and saves it to Firebase
     /// under `/fcmTokens/{userId}`. Call after a user successfully authenticates.
     func saveFCMToken(for userId: String) async {
+        currentUserId = userId
         do {
             let token = try await Messaging.messaging().token()
             fcmToken = token
@@ -104,15 +115,84 @@ final class NotificationService: NSObject, ObservableObject {
 
     /// Fetches the FCM token for a given user from Firebase.
     func fetchFCMToken(for userId: String) async -> String? {
+        let ref = database
+            .child(GameConstants.FirebasePath.fcmTokens)
+            .child(userId)
         do {
-            let snapshot = try await database
-                .child(GameConstants.FirebasePath.fcmTokens)
-                .child(userId)
-                .getData()
+            let snapshot = try await ref.getData()
             return snapshot.value as? String
         } catch {
             print("❌ [NotificationService] Failed to fetch FCM token for userId=\(userId): \(error)")
             return nil
+        }
+    }
+
+    // MARK: - Send Tag Warning Notification
+
+    /// Sends a "tag nearby" warning to a player whose actual location is within
+    /// the warning radius of the guessed tag location.
+    func sendTagWarningNotification(
+        to userId: String,
+        taggerName: String,
+        gameTitle: String
+    ) async {
+        guard let token = await fetchFCMToken(for: userId) else {
+            print("ℹ️ [NotificationService] No FCM token for userId=\(userId) — skipping tag warning.")
+            return
+        }
+
+        let payload: [String: Any] = [
+            "recipientToken": token,
+            "taggerName": taggerName,
+            "gameTitle": gameTitle
+        ]
+
+        do {
+            _ = try await functions.httpsCallable("sendTagWarning").call(payload)
+            print("✅ [NotificationService] Tag warning sent to userId=\(userId)")
+        } catch {
+            print("❌ [NotificationService] sendTagWarning error: \(error)")
+        }
+    }
+
+    // MARK: - Send Nudge Notification
+
+    /// Sends a "your turn" push notification to every other player in the game.
+    /// Excludes the nudger themselves.
+    func sendNudgeNotifications(
+        gameId: String,
+        gameTitle: String,
+        nudgedByName: String,
+        playerIds: [String],
+        nudgerId: String
+    ) async {
+        let recipients = playerIds.filter { $0 != nudgerId }
+        guard !recipients.isEmpty else { return }
+
+        var tokensForRecipients: [String: String] = [:]
+        for userId in recipients {
+            if let token = await fetchFCMToken(for: userId) {
+                tokensForRecipients[userId] = token
+            }
+        }
+
+        guard !tokensForRecipients.isEmpty else {
+            print("ℹ️ [NotificationService] No FCM tokens found for nudge recipients — skipping.")
+            return
+        }
+
+        let payload: [String: Any] = [
+            "gameId": gameId,
+            "gameTitle": gameTitle,
+            "nudgedByName": nudgedByName,
+            "recipientTokens": tokensForRecipients
+        ]
+
+        do {
+            _ = try await functions.httpsCallable("nudgePlayers").call(payload)
+            print("✅ [NotificationService] Nudge notifications dispatched for gameId=\(gameId)")
+        } catch {
+            print("❌ [NotificationService] nudgePlayers Cloud Function error: \(error)")
         }
     }
 
@@ -170,7 +250,7 @@ final class NotificationService: NSObject, ObservableObject {
 
 // MARK: - UNUserNotificationCenterDelegate
 
-extension NotificationService: UNUserNotificationCenterDelegate {
+extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate {
 
     /// Show notifications as banners even when the app is in the foreground.
     func userNotificationCenter(
@@ -223,16 +303,16 @@ extension NotificationService: MessagingDelegate {
 
     /// Called whenever FCM vends a new or refreshed token.
     /// Re-saves it to Firebase so the stored token stays current.
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    nonisolated func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let token = fcmToken else { return }
-        self.fcmToken = token
         print("ℹ️ [NotificationService] FCM token refreshed: \(token)")
-        // The caller (AppDelegate / AuthService) should call saveFCMToken(for:) with the current userId
-        NotificationCenter.default.post(
-            name: .fcmTokenDidRefresh,
-            object: nil,
-            userInfo: ["fcmToken": token]
-        )
+        Task { @MainActor in
+            self.fcmToken = token
+            // Re-persist the refreshed token so recipients can always be reached.
+            if let userId = self.currentUserId {
+                await self.saveFCMToken(for: userId)
+            }
+        }
     }
 }
 
@@ -244,5 +324,4 @@ extension Notification.Name {
     static let didReceiveTripwireNotification = Notification.Name("didReceiveTripwireNotification")
     static let didReceiveGameStarted = Notification.Name("didReceiveGameStarted")
     static let didReceiveEliminatedNotification = Notification.Name("didReceiveEliminatedNotification")
-    static let fcmTokenDidRefresh = Notification.Name("fcmTokenDidRefresh")
 }

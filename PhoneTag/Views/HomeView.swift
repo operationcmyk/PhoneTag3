@@ -15,6 +15,8 @@ struct HomeView: View {
     @State private var showingAddFriend = false
     @State private var showingProfile = false
     @State private var playerNames: [String: String] = [:]
+    @State private var nudgingGameId: String? = nil
+    @State private var nudgeConfirmationGame: Game? = nil
 
     var body: some View {
         NavigationStack {
@@ -118,6 +120,26 @@ struct HomeView: View {
                 await viewModel.loadGames()
                 await loadPlayerNames()
             }
+            .confirmationDialog(
+                nudgeConfirmationGame.map { "Nudge players in \"\($0.title)\"?" } ?? "",
+                isPresented: Binding(
+                    get: { nudgeConfirmationGame != nil },
+                    set: { if !$0 { nudgeConfirmationGame = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                if let game = nudgeConfirmationGame {
+                    Button("Nudge Everyone") {
+                        nudgeConfirmationGame = nil
+                        Task { await sendNudge(for: game) }
+                    }
+                    Button("Cancel", role: .cancel) {
+                        nudgeConfirmationGame = nil
+                    }
+                }
+            } message: {
+                Text("This will send a push notification to all other players to remind them to play.")
+            }
         }
     }
 
@@ -142,6 +164,14 @@ struct HomeView: View {
                                 currentUserId: user.id,
                                 playerNames: playerNames
                             )
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                nudgeConfirmationGame = game
+                            } label: {
+                                Label("Nudge", systemImage: "bell.fill")
+                            }
+                            .tint(.orange)
                         }
                     }
                     .onDelete { indexSet in
@@ -176,6 +206,16 @@ struct HomeView: View {
                 }
             }
         }
+    }
+
+    private func sendNudge(for game: Game) async {
+        await NotificationService.shared.sendNudgeNotifications(
+            gameId: game.id,
+            gameTitle: game.title,
+            nudgedByName: user.displayName,
+            playerIds: Array(game.players.keys),
+            nudgerId: user.id
+        )
     }
 
     private func loadPlayerNames() async {

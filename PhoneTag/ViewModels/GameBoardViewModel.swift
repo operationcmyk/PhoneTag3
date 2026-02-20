@@ -10,14 +10,12 @@ final class GameBoardViewModel {
     let gameRepository: any GameRepositoryProtocol
     let userRepository: any UserRepositoryProtocol
     let locationService: LocationService
-    private let locationRepository = LocationRepository()
 
     var game: Game
     var playerNames: [String: String] = [:] // userId -> displayName
     var cameraPosition: MapCameraPosition = .automatic
     var visibleMapCenter: CLLocationCoordinate2D?
     private var hasCenteredOnUser = false
-    private var locationUploadTask: Task<Void, Never>?
 
     // Safe zone placement (two required before game can start)
     /// True when the player still needs to place one or both safe zones.
@@ -403,13 +401,17 @@ final class GameBoardViewModel {
 
     func leaveGame() async {
         await gameRepository.leaveGame(gameId: game.id, userId: userId)
-        locationService.stopUpdatingLocation()
+        locationService.stopGameTracking()
         didLeave = true
     }
 
     func refreshGame() async {
         if let updated = await gameRepository.fetchGame(by: game.id) {
             game = updated
+            // Re-sync geofences whenever the game state changes (new tripwires may have been placed).
+            if game.status == .active {
+                setupTripwireGeofences()
+            }
         }
     }
 
@@ -428,7 +430,7 @@ final class GameBoardViewModel {
 
         if game.status == .active {
             locationService.startGameTracking()
-            startPeriodicLocationUpload()
+            setupTripwireGeofences()
         }
     }
 
@@ -438,32 +440,8 @@ final class GameBoardViewModel {
         if game.status != .active {
             locationService.stopUpdatingLocation()
         }
-        locationUploadTask?.cancel()
-        locationUploadTask = nil
-    }
-
-    /// Upload current location to Firebase immediately (if throttle allows).
-    func uploadLocationNow() async {
-        guard let location = locationService.currentLocation,
-              locationService.shouldUploadLocation() else { return }
-
-        do {
-            try await locationRepository.uploadLocation(userId: userId, location: location)
-            locationService.didUploadLocation()
-        } catch {
-            // Silently fail — next interval will retry
-        }
-    }
-
-    /// Start a repeating task that uploads location every 5 minutes.
-    private func startPeriodicLocationUpload() {
-        locationUploadTask?.cancel()
-        locationUploadTask = Task { [weak self] in
-            while !Task.isCancelled {
-                await self?.uploadLocationNow()
-                try? await Task.sleep(for: .seconds(GameConstants.backgroundLocationUpdateInterval))
-            }
-        }
+        // Location uploading is owned by UserLocationManager at the session level —
+        // nothing to cancel here.
     }
 
     /// Center the map camera on the user's current location once.

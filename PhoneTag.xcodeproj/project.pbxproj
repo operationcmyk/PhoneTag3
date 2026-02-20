@@ -36,6 +36,7 @@
 		759088DEB9AC9A2F3F390F99 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2586FFA48CA25E019CDEBE98 /* FirebaseAnalytics */; };
 		7C8D9E0F1A2B3C4D5E6F7A8B /* GameBoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8B9C0D1E2F3A4B5C6D7E8F /* GameBoardViewModel.swift */; };
 		8387A8A82F47FE660090B4C4 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 8387A8A72F47FE660090B4C4 /* FirebaseFunctions */; };
+		8387A8AA2F4807270090B4C4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8387A8A92F4807270090B4C4 /* NotificationService.swift */; };
 		8693D09515F58C485EB22501 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0078DE14B18B6CC8C52358E8 /* Constants.swift */; };
 		88CDD27E76E6E5F898772DEC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54191F44967C581D72B4B1A /* ContentView.swift */; };
 		8C9D0E1F2A3B4C5D6E7F8A9B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */; };
@@ -97,6 +98,7 @@
 		6FAB7B07A239206C9444B127 /* PlayerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerState.swift; sourceTree = "<group>"; };
 		7A8B9C0D1E2F3A4B5C6D7E8F /* GameBoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameBoardViewModel.swift; sourceTree = "<group>"; };
 		7E8F9A0B1C2D3E4F5A6B7C8D /* TagOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagOverlay.swift; sourceTree = "<group>"; };
+		8387A8A92F4807270090B4C4 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		8A9B0C1D2E3F4A5B6C7D8E9F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		98DA4BA41DFE55AE950E6789 /* PhoneTagApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneTagApp.swift; sourceTree = "<group>"; };
 		9A0B1C2D3E4F5A6B7C8D9E0F /* CreateGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGameView.swift; sourceTree = "<group>"; };
@@ -263,6 +265,7 @@
 		E1F2A3B4C5D6E7F8A9B0C1D2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				8387A8A92F4807270090B4C4 /* NotificationService.swift */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* AuthService.swift */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* LocationService.swift */,
 				FC1B2C3D4E5F6A7B8C9DFF06 /* ContactsService.swift */,
@@ -418,6 +421,7 @@
 				1D2E3F4A5B6C7D8E9F0A1B2C /* GameListRowView.swift in Sources */,
 				3FEF1A5A2F46273F00E916C0 /* SignInView.swift in Sources */,
 				3FEF1A5B2F46273F00E916C0 /* HomeViewTest.swift in Sources */,
+				8387A8AA2F4807270090B4C4 /* NotificationService.swift in Sources */,
 				3FEF1A5C2F46273F00E916C0 /* ContentViewTest.swift in Sources */,
 				3FEF1A5D2F46273F00E916C0 /* sessionManager.swift in Sources */,
 				2D3E4F5A6B7C8D9E0F1A2B3C /* PlayerStatusView.swift in Sources */,

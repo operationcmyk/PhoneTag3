@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var userRepository = FirebaseUserRepository()
     @State private var locationService = LocationService()
     @State private var contactsService = ContactsService()
+    @State private var userLocationManager: UserLocationManager?
 
     var body: some View {
         Group {
@@ -15,6 +16,10 @@ struct ContentView: View {
 
             case .unauthenticated:
                 LoginView(authService: authService)
+                    .onAppear {
+                        userLocationManager?.stop()
+                        userLocationManager = nil
+                    }
 
             case .needsDisplayName:
                 SetDisplayNameView(authService: authService)
@@ -29,8 +34,15 @@ struct ContentView: View {
                     locationService: locationService,
                     contactsService: contactsService
                 )
-                .task {
-                    locationService.requestWhenInUseAuthorization()
+                .onAppear {
+                    // Start once per session; guard prevents restarting on every re-appear.
+                    guard userLocationManager == nil else { return }
+                    let manager = UserLocationManager(locationService: locationService)
+                    manager.start(userId: user.id)
+                    userLocationManager = manager
+                }
+                .onChange(of: locationService.locationUpdateCount) {
+                    userLocationManager?.onLocationUpdate()
                 }
             }
         }

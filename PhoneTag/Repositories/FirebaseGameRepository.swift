@@ -267,11 +267,26 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         var closestDistance = Double.greatestFiniteMagnitude
         var hitPlayerId: String?
 
+        let taggerName = await fetchDisplayName(userId: fromUserId)
+
         for (playerId, playerState) in game.players where playerId != fromUserId && playerState.isActive {
             guard let actualCoord = await fetchPlayerLocation(userId: playerId) else { continue }
             let actualCL = CLLocation(latitude: actualCoord.latitude, longitude: actualCoord.longitude)
             let distance = guessedCL.distance(from: actualCL)
             if distance < closestDistance { closestDistance = distance }
+
+            // Warn player if the tag landed within 1500ft (~457m) of their actual location,
+            // regardless of whether it's a hit or miss.
+            if distance <= GameConstants.tagWarningRadius {
+                Task {
+                    await NotificationService.shared.sendTagWarningNotification(
+                        to: playerId,
+                        taggerName: taggerName,
+                        gameTitle: game.title
+                    )
+                }
+            }
+
             guard distance <= tagRadius else { continue }
 
             // Check home bases

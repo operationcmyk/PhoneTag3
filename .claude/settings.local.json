@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "Bash(firebase functions:list:*)",
+      "Bash(firebase:*)",
+      "Bash(node:*)",
+      "Bash(npm --version:*)",
+      "Bash(npm install:*)",
+      "Bash(/opt/homebrew/bin/npm install)",
+      "Bash(/opt/homebrew/bin/node:*)",
+      "Bash(PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npm run build:*)"
     ]
   }
 }

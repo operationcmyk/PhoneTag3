@@ -36,6 +36,9 @@ enum GameConstants {
     static let arsenalActionRed = Color(red: 0.82, green: 0.0, blue: 0.0)          // Legacy buy button #D20000
     static let arsenalGold = Color(red: 1.0, green: 0.925, blue: 0.0)              // Legacy gold text #FFEC00
 
+    // Tag Warning Settings
+    static let tagWarningRadius: CLLocationDistance = 457   // ~1500ft — sends push notification to nearby players
+
     // Tripwire Settings
     static let tripwireRadius: CLLocationDistance = 15      // ~50ft
 
