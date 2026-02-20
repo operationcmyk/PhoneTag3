@@ -527,6 +527,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				INFOPLIST_FILE = PhoneTag/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Phone Tag!";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Phone Tag uses your contacts to show which friends are already on the app and to make it easy to invite others to your game.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to detect tripwire crossings and keep your position updated during active games.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show your position on the map and let other players tag you during games.";
@@ -536,10 +538,12 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.operationcmyk.phonetag;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -625,6 +629,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				INFOPLIST_FILE = PhoneTag/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Phone Tag!";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Phone Tag uses your contacts to show which friends are already on the app and to make it easy to invite others to your game.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to detect tripwire crossings and keep your position updated during active games.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show your position on the map and let other players tag you during games.";
@@ -634,10 +640,12 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.operationcmyk.phonetag;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -43,11 +43,12 @@ enum GameConstants {
     static let tripwireRadius: CLLocationDistance = 15      // ~50ft
 
     // Radar Settings
-    static let radarRadius: CLLocationDistance = 610         // ~2000ft
-    static let radarDuration: TimeInterval = 20             // seconds visible
-    static let radarJitter: CLLocationDistance = 300         // max offset for real location within circle
-    static let radarDecoyMinDistance: CLLocationDistance = 1500  // min distance between real and decoy circles
-    static let radarDecoyMaxDistance: CLLocationDistance = 3000  // max distance between real and decoy circles
+    // Each radar ping shows TWO circles of this radius — only ONE contains the target.
+    static let radarRadius: CLLocationDistance = 610         // 2000ft radius per circle
+    static let radarDuration: TimeInterval = 10             // seconds visible before disappearing
+    // Decoy circle is placed this far from the real circle centre
+    static let radarDecoyMinDistance: CLLocationDistance = 1500  // min metres between real and decoy centres
+    static let radarDecoyMaxDistance: CLLocationDistance = 3000  // max metres between real and decoy centres
 
     // Location Update Settings
     static let significantLocationChangeDistance: CLLocationDistance = 100

@@ -19,4 +19,10 @@ protocol GameRepositoryProtocol {
     /// Deducts one strike from a player who has been offline for 48h.
     /// Returns the player's name and whether they were eliminated (strikes hit 0).
     func deductStrikeForInactivity(gameId: String, userId: String) async -> (playerName: String, wasEliminated: Bool)?
+
+    /// Called when the current user crosses another player's tripwire.
+    /// Deducts a strike from the triggered user, creates a permanent safe zone at the tripwire
+    /// location, removes the tripwire, and sends appropriate notifications.
+    /// Returns the TagResult so the UI can display the outcome.
+    func processTripwireHit(tripwireId: String, gameId: String, triggeredByUserId: String) async -> TagResult?
 }

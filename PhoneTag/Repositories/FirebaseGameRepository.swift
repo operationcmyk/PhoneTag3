@@ -19,6 +19,10 @@ private let fbDecoder: JSONDecoder = {
 final class FirebaseGameRepository: GameRepositoryProtocol {
     private let database = Database.database().reference()
 
+    /// Weak reference to LocationService so tripwire processing can remove consumed geofences.
+    /// Set by ContentView after both objects are created.
+    weak var locationService: LocationService?
+
     // MARK: - Fetch
 
     func fetchGames(for userId: String) async -> [Game] {
@@ -478,6 +482,82 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
 
         let playerName = await fetchDisplayName(userId: userId)
         return (playerName: playerName, wasEliminated: state.strikes == 0)
+    }
+
+    // MARK: - Tripwire Hit
+
+    func processTripwireHit(tripwireId: String, gameId: String, triggeredByUserId: String) async -> TagResult? {
+        guard let game = await fetchGame(by: gameId),
+              game.status == .active else { return nil }
+
+        // Find the player who placed this tripwire
+        guard let (placerUserId, _) = game.players.first(where: { _, state in
+            state.tripwires.contains(where: { $0.id == tripwireId })
+        }),
+        let tripwire = game.players[placerUserId]?.tripwires.first(where: { $0.id == tripwireId }),
+        let tripwireCenter = tripwire.path.first else { return nil }
+
+        // The triggered user must still be active
+        guard var triggeredState = game.players[triggeredByUserId],
+              triggeredState.isActive,
+              triggeredState.strikes > 0 else { return nil }
+
+        // Deduct strike from the triggered player
+        let previousStrikes = triggeredState.strikes
+        triggeredState.strikes = max(0, triggeredState.strikes - 1)
+        if triggeredState.strikes == 0 { triggeredState.isActive = false }
+
+        // Create a permanent safe zone at the tripwire location (basic-tag-sized, same rules as a hit)
+        let permanentBase = SafeBase(
+            id: UUID().uuidString,
+            location: tripwireCenter,
+            createdAt: Date(),
+            type: .hitTag,
+            expiresAt: nil,
+            radius: GameConstants.basicTagRadius
+        )
+        triggeredState.safeBases.append(permanentBase)
+        await updatePlayerState(gameId: gameId, userId: triggeredByUserId, state: triggeredState)
+
+        // Remove the tripwire from the placer's state
+        if var placerState = game.players[placerUserId] {
+            placerState.tripwires.removeAll { $0.id == tripwireId }
+            await updatePlayerState(gameId: gameId, userId: placerUserId, state: placerState)
+        }
+
+        // Remove the geofence (it's now consumed)
+        locationService?.removeGeofence(identifier: tripwireId)
+
+        // Check if the hit eliminated the triggered player
+        let triggeredName = await fetchDisplayName(userId: triggeredByUserId)
+        let placerName = await fetchDisplayName(userId: placerUserId)
+        let allPlayerIds = Array(game.players.keys)
+
+        if triggeredState.strikes == 0 {
+            await checkAndCompleteGame(gameId: gameId)
+            Task {
+                await NotificationService.shared.sendEliminationNotification(
+                    gameId: gameId,
+                    gameTitle: game.title,
+                    eliminatedPlayerName: triggeredName,
+                    playerIds: allPlayerIds,
+                    eliminatedId: triggeredByUserId
+                )
+            }
+        } else {
+            Task {
+                await NotificationService.shared.sendHitNotification(
+                    to: triggeredByUserId,
+                    taggerName: "\(placerName)'s Tripwire",
+                    tagType: .basic,
+                    gameId: gameId,
+                    gameTitle: game.title
+                )
+            }
+        }
+
+        let hitCoord = GeoPoint(latitude: tripwireCenter.latitude, longitude: tripwireCenter.longitude)
+        return .hit(actualLocation: hitCoord, distance: 0, targetName: triggeredName)
     }
 
     // MARK: - Join by Code

@@ -58,6 +58,10 @@ struct ContentView: View {
             }
         }
         .animation(.default, value: authService.authState.isAuthenticated)
+        .onAppear {
+            // Wire up LocationService so FirebaseGameRepository can remove consumed geofences
+            gameRepository.locationService = locationService
+        }
     }
 }
 

@@ -244,39 +244,49 @@ final class GameBoardViewModel {
 
         gameRepository.useRadar(gameId: game.id, userId: userId)
 
-        // Build radar result from mock data (production would call a Cloud Function)
-        if let repo = gameRepository as? MockGameRepository {
-            let opponents = game.players.filter { $0.key != userId && $0.value.isActive }
-            if let opponentId = opponents.keys.randomElement(),
-               let actualCoord = repo.playerLocations[opponentId] {
-
-                let targetName = playerNames[opponentId] ?? "Unknown"
-                let result = Self.buildRadarResult(actualLocation: actualCoord, targetName: targetName)
-                radarResult = result
-                showingRadar = true
-                radarTimeRemaining = Int(GameConstants.radarDuration)
-
-                // Pan camera to fit both circles
-                fitCameraToRadar(result)
-
-                // Countdown and auto-dismiss
-                radarDismissTask?.cancel()
-                radarDismissTask = Task {
-                    for _ in 0..<Int(GameConstants.radarDuration) {
-                        try? await Task.sleep(for: .seconds(1))
-                        guard !Task.isCancelled else { return }
-                        radarTimeRemaining -= 1
-                    }
-                    showingRadar = false
-                    radarResult = nil
-                }
-            }
-        }
-
         isArsenalOpen = false
         selectedArsenalItem = nil
 
         Task {
+            // Pick a random active opponent
+            let opponents = game.players.filter { $0.key != userId && $0.value.isActive }
+            guard let opponentId = opponents.keys.randomElement() else { return }
+
+            let targetName = playerNames[opponentId] ?? "Player"
+            let locationRepo = LocationRepository()
+            var actualCoord: CLLocationCoordinate2D?
+
+            // Try Firebase first (production)
+            if let loc = try? await locationRepo.fetchLocation(for: opponentId) {
+                actualCoord = loc.coordinate
+            }
+            // Fall back to mock data if available (simulator/testing)
+            if actualCoord == nil, let repo = gameRepository as? MockGameRepository {
+                actualCoord = repo.playerLocations[opponentId]
+            }
+
+            guard let coord = actualCoord else { return }
+
+            let result = Self.buildRadarResult(actualLocation: coord, targetName: targetName)
+            radarResult = result
+            showingRadar = true
+            radarTimeRemaining = Int(GameConstants.radarDuration)
+
+            // Pan camera so both circles are visible
+            fitCameraToRadar(result)
+
+            // Countdown and auto-dismiss
+            radarDismissTask?.cancel()
+            radarDismissTask = Task {
+                for _ in 0..<Int(GameConstants.radarDuration) {
+                    try? await Task.sleep(for: .seconds(1))
+                    guard !Task.isCancelled else { return }
+                    radarTimeRemaining -= 1
+                }
+                showingRadar = false
+                radarResult = nil
+            }
+
             if let updated = await gameRepository.fetchGame(by: game.id) {
                 game = updated
             }
@@ -313,19 +323,19 @@ final class GameBoardViewModel {
         ))
     }
 
-    /// Build two candidate circles: one near real location, one decoy.
+    /// Build two candidate circles: one centred on the real location, one decoy.
+    /// The real circle is placed exactly on the target — the 61m radius is the ambiguity.
+    /// The decoy circle is placed 300–800m away so the viewer can't easily tell which is real.
     static func buildRadarResult(actualLocation: CLLocationCoordinate2D, targetName: String) -> RadarResult {
-        // Circle A: real location offset by random jitter (stays within radar radius)
-        let jitterDistance = Double.random(in: 0...GameConstants.radarJitter)
-        let jitterBearing = Double.random(in: 0..<360)
-        let realCircleCenter = offsetCoordinate(actualLocation, distanceMeters: jitterDistance, bearingDegrees: jitterBearing)
+        // Circle A: real circle — centred exactly on the target's location
+        let realCircleCenter = actualLocation
 
-        // Circle B: decoy placed 1.5–3km away in a random direction
+        // Circle B: decoy placed 300–800m away in a random direction
         let decoyDistance = Double.random(in: GameConstants.radarDecoyMinDistance...GameConstants.radarDecoyMaxDistance)
         let decoyBearing = Double.random(in: 0..<360)
         let decoyCenter = offsetCoordinate(actualLocation, distanceMeters: decoyDistance, bearingDegrees: decoyBearing)
 
-        // Shuffle so the user can't assume order
+        // Shuffle so the tagger can't assume which circle is which
         let locations: [CLLocationCoordinate2D] = Bool.random()
             ? [realCircleCenter, decoyCenter]
             : [decoyCenter, realCircleCenter]
@@ -453,6 +463,45 @@ final class GameBoardViewModel {
             center: location.coordinate,
             span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007)
         ))
+    }
+
+    /// Called when `locationService.lastTriggeredRegionId` changes.
+    /// Processes a tripwire hit: deducts a strike, creates a safe zone, removes the tripwire.
+    func handleTripwireTrigger(_ regionId: String) {
+        guard game.status == .active else { return }
+        Task {
+            guard let result = await gameRepository.processTripwireHit(
+                tripwireId: regionId,
+                gameId: game.id,
+                triggeredByUserId: userId
+            ) else { return }
+
+            // Show the result in the existing tag result alert
+            tagResult = result
+            showingTagResult = true
+
+            // Add to the visible tags on the map as a hit marker
+            if case .hit(let geo, _, _) = result {
+                let coord = CLLocationCoordinate2D(latitude: geo.latitude, longitude: geo.longitude)
+                let tag = Tag(
+                    id: UUID().uuidString,
+                    gameId: game.id,
+                    fromUserId: "tripwire",
+                    targetUserId: userId,
+                    guessedLocation: GeoPoint(latitude: coord.latitude, longitude: coord.longitude),
+                    timestamp: Date(),
+                    result: result,
+                    tagType: .basic
+                )
+                submittedTags.append(tag)
+            }
+
+            // Refresh game state and reset geofences (consumed tripwire is now removed)
+            if let updated = await gameRepository.fetchGame(by: game.id) {
+                game = updated
+                setupTripwireGeofences()
+            }
+        }
     }
 
     /// Set up geofences for all tripwires in the current game that target this user.

@@ -405,6 +405,42 @@ final class MockGameRepository: GameRepositoryProtocol {
         return (playerName: name, wasEliminated: state.strikes == 0)
     }
 
+    func processTripwireHit(tripwireId: String, gameId: String, triggeredByUserId: String) async -> TagResult? {
+        guard let idx = games.firstIndex(where: { $0.id == gameId }) else { return nil }
+
+        // Find the placer of this tripwire
+        guard let placerEntry = games[idx].players.first(where: { _, state in
+            state.tripwires.contains(where: { $0.id == tripwireId })
+        }),
+        let tripwire = placerEntry.value.tripwires.first(where: { $0.id == tripwireId }),
+        let center = tripwire.path.first else { return nil }
+
+        guard var triggeredState = games[idx].players[triggeredByUserId],
+              triggeredState.isActive,
+              triggeredState.strikes > 0 else { return nil }
+
+        triggeredState.strikes = max(0, triggeredState.strikes - 1)
+        if triggeredState.strikes == 0 { triggeredState.isActive = false }
+
+        let permanentBase = SafeBase(
+            id: UUID().uuidString,
+            location: center,
+            createdAt: Date(),
+            type: .hitTag,
+            expiresAt: nil,
+            radius: GameConstants.basicTagRadius
+        )
+        triggeredState.safeBases.append(permanentBase)
+        games[idx].players[triggeredByUserId] = triggeredState
+
+        // Remove the tripwire from the placer
+        games[idx].players[placerEntry.key]?.tripwires.removeAll { $0.id == tripwireId }
+
+        let triggeredName = playerNames[triggeredByUserId] ?? "Player"
+        let hitCoord = GeoPoint(latitude: center.latitude, longitude: center.longitude)
+        return .hit(actualLocation: hitCoord, distance: 0, targetName: triggeredName)
+    }
+
     // MARK: - Private
 
     private func checkGameCompletion(gameIdx: Int) {

@@ -35,6 +35,7 @@ struct CreateGameView: View {
                 } else {
                     List {
                         appFriendsSection
+                        recentPlayersSection
                         appContactsSection
                         offAppContactsSection
                     }
@@ -102,8 +103,40 @@ struct CreateGameView: View {
     }
 
     @ViewBuilder
+    private var recentPlayersSection: some View {
+        if !viewModel.recentPlayers.isEmpty {
+            Section {
+                ForEach(Array(viewModel.recentPlayers.enumerated()), id: \.element.id) { index, player in
+                    playerRow(
+                        name: player.displayName,
+                        subtitle: nil,
+                        color: .secondary,
+                        isSelected: viewModel.selectedPlayerIds.contains(player.id),
+                        badge: "Played before"
+                    ) {
+                        viewModel.togglePlayer(player.id)
+                    }
+                }
+            } header: {
+                Label("Recent Players", systemImage: "clock.arrow.circlepath")
+            }
+        }
+    }
+
+    @ViewBuilder
     private var appContactsSection: some View {
-        if !viewModel.appContacts.isEmpty {
+        if viewModel.isLoadingContacts {
+            Section {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Checking contacts…")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                }
+            } header: {
+                Label("Contacts on PhoneTag", systemImage: "person.crop.circle.badge.checkmark")
+            }
+        } else if !viewModel.appContacts.isEmpty {
             Section {
                 ForEach(viewModel.appContacts) { contact in
                     playerRow(
@@ -126,7 +159,18 @@ struct CreateGameView: View {
 
     @ViewBuilder
     private var offAppContactsSection: some View {
-        if !viewModel.offAppContacts.isEmpty {
+        if viewModel.isLoadingContacts {
+            Section {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Loading contacts…")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                }
+            } header: {
+                Label("Invite via Text", systemImage: "message")
+            }
+        } else if !viewModel.offAppContacts.isEmpty {
             Section {
                 ForEach(viewModel.offAppContacts) { contact in
                     inviteRow(contact: contact)
@@ -229,6 +273,7 @@ struct CreateGameView: View {
 
                 ForEach(Array(viewModel.selectedPlayerIds.enumerated()), id: \.element) { index, playerId in
                     let name = viewModel.appFriends.first(where: { $0.id == playerId })?.displayName
+                        ?? viewModel.recentPlayers.first(where: { $0.id == playerId })?.displayName
                         ?? viewModel.appContacts.first(where: { $0.id == playerId })?.displayName
                         ?? "Player"
                     let color = GameConstants.playerColors[(index + 1) % GameConstants.playerColors.count]

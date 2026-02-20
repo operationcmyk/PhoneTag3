@@ -129,6 +129,12 @@ struct GameBoardView: View {
         .onChange(of: viewModel.locationService.locationUpdateCount) {
             viewModel.centerOnUserIfNeeded()
         }
+        .onChange(of: viewModel.locationService.lastTriggeredRegionId) { _, regionId in
+            // A tripwire geofence was crossed — process the hit
+            if let regionId {
+                viewModel.handleTripwireTrigger(regionId)
+            }
+        }
         .sheet(isPresented: $showingStore) {
             StoreView(
                 gameRepository: viewModel.gameRepository,
@@ -138,7 +144,7 @@ struct GameBoardView: View {
                 Task { await viewModel.refreshGame() }
             }
         }
-        .alert("Tag Result", isPresented: $viewModel.showingTagResult) {
+        .alert(tagResultTitle(viewModel.tagResult), isPresented: $viewModel.showingTagResult) {
             Button("OK") {
                 viewModel.tagResult = nil
             }
@@ -149,9 +155,21 @@ struct GameBoardView: View {
         }
     }
 
+    private func tagResultTitle(_ result: TagResult?) -> String {
+        guard let result else { return "Tag Result" }
+        if case .hit(_, _, let name) = result, name == viewModel.playerNames[viewModel.userId] ?? "" {
+            return "⚡ Tripwire!"
+        }
+        return "Tag Result"
+    }
+
     private func tagResultMessage(_ result: TagResult) -> String {
         switch result {
         case .hit(_, _, let targetName):
+            // Tripwire hits target the current user; taggerName is "tripwire"
+            if targetName == viewModel.playerNames[viewModel.userId] {
+                return "You walked into a tripwire and lost a life! -1 strike."
+            }
             return "Hit - \(targetName)"
         case .miss(let distance):
             return "Miss. Closest target was \(Int(distance))m away."

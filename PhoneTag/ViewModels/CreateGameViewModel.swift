@@ -13,7 +13,10 @@ final class CreateGameViewModel {
     /// Friends already in the app
     var appFriends: [User] = []
 
-    /// Contacts who are on PhoneTag but not yet friends
+    /// People you've played with (past or current games) who aren't already friends
+    var recentPlayers: [User] = []
+
+    /// Contacts who are on PhoneTag but not yet friends or recent players
     var appContacts: [User] = []
 
     /// Device contacts NOT on the app (phone number only — for share-code invites)
@@ -30,7 +33,10 @@ final class CreateGameViewModel {
     // MARK: - Other state
 
     var gameTitle = ""
+    /// True while Phase 1 (friends + recent players) is loading — shows full-screen spinner
     var isLoading = false
+    /// True while Phase 2 (device contacts cross-referenced with Firebase) is loading — shows inline spinners
+    var isLoadingContacts = false
     var contactsPermissionDenied = false
     var createdGame: Game?
 
@@ -56,12 +62,22 @@ final class CreateGameViewModel {
 
     func load() async {
         isLoading = true
-        defer { isLoading = false }
 
-        // Always load app friends first (no permission needed)
+        // ── Phase 1: Instant ──
+        // Friends (direct ID lookups — fast)
         appFriends = await userRepository.fetchFriends(for: userId)
 
-        // Request contacts access and cross-reference
+        // Recent players: anyone you've been in a game with
+        let friendIds = Set(appFriends.map(\.id))
+        recentPlayers = await fetchRecentPlayers(excluding: friendIds)
+
+        // Phase 1 done — render immediately
+        isLoading = false
+
+        // ── Phase 2: Background contacts ──
+        isLoadingContacts = true
+        defer { isLoadingContacts = false }
+
         let granted = await contactsService.requestAccess()
         if !granted {
             contactsPermissionDenied = true
@@ -69,28 +85,52 @@ final class CreateGameViewModel {
         }
 
         let deviceContacts = await contactsService.fetchContacts()
-        let friendPhones = Set(appFriends.map { $0.phoneNumber })
+        let friendPhones = Set(appFriends.map(\.phoneNumber))
 
         // All unique normalized phone numbers from device contacts
         let allContactPhones = Array(
-            Set(deviceContacts.flatMap { $0.phoneNumbers })
+            Set(deviceContacts.flatMap(\.phoneNumbers))
         )
 
-        // Look up which of those phones are registered PhoneTag users
+        // Look up which of those phones are registered PhoneTag users (now batched/concurrent)
         let onAppUsers = await userRepository.fetchUsersByPhones(allContactPhones)
 
-        // Exclude self and existing friends
-        let friendIds = Set(appFriends.map { $0.id })
-        appContacts = onAppUsers.filter { $0.id != userId && !friendIds.contains($0.id) }
+        // Exclude self, existing friends, and recent players
+        let knownIds = friendIds.union(Set(recentPlayers.map(\.id)))
+        appContacts = onAppUsers.filter { $0.id != userId && !knownIds.contains($0.id) }
 
         // On-app phone numbers (for exclusion from off-app list)
-        let onAppPhones = Set(onAppUsers.map { $0.phoneNumber }).union(friendPhones)
+        let recentPlayerPhones = Set(recentPlayers.map(\.phoneNumber))
+        let onAppPhones = Set(onAppUsers.map(\.phoneNumber))
+            .union(friendPhones)
+            .union(recentPlayerPhones)
 
         // Off-app contacts: device contacts where NONE of their numbers are on the app
         offAppContacts = deviceContacts.filter { contact in
             !contact.phoneNumbers.contains(where: { onAppPhones.contains($0) })
         }
         .sorted { $0.displayName < $1.displayName }
+    }
+
+    // MARK: - Recent Players
+
+    /// Collects every player ID from the user's games (past & present),
+    /// fetches their User objects, and returns those who aren't the current user or existing friends.
+    private func fetchRecentPlayers(excluding friendIds: Set<String>) async -> [User] {
+        let games = await gameRepository.fetchGames(for: userId)
+        let allPlayerIds = Set(games.flatMap { $0.players.keys })
+            .subtracting([userId])
+            .subtracting(friendIds)
+
+        guard !allPlayerIds.isEmpty else { return [] }
+
+        var users: [User] = []
+        for playerId in allPlayerIds {
+            if let user = await userRepository.fetchUser(playerId) {
+                users.append(user)
+            }
+        }
+        return users.sorted { $0.displayName < $1.displayName }
     }
 
     // MARK: - Toggle selection

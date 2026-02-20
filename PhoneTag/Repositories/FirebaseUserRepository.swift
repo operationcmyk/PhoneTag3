@@ -67,11 +67,28 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
     }
 
     func fetchUsersByPhones(_ phones: [String]) async -> [User] {
+        // Run up to 10 concurrent Firebase queries instead of one-at-a-time.
+        // For 500 phone numbers this cuts wall-clock time from ~500 round-trips to ~50.
+        let maxConcurrent = 10
         var users: [User] = []
-        for phone in phones {
-            if let user = await searchByPhone(phone) {
-                users.append(user)
+
+        for batchStart in stride(from: 0, to: phones.count, by: maxConcurrent) {
+            let batchEnd = min(batchStart + maxConcurrent, phones.count)
+            let batch = Array(phones[batchStart..<batchEnd])
+
+            let batchResults = await withTaskGroup(of: User?.self) { group in
+                for phone in batch {
+                    group.addTask { [weak self] in
+                        await self?.searchByPhone(phone)
+                    }
+                }
+                var results: [User] = []
+                for await user in group {
+                    if let user { results.append(user) }
+                }
+                return results
             }
+            users.append(contentsOf: batchResults)
         }
         return users
     }
