@@ -45,6 +45,7 @@ final class AuthService {
     private func loadUser(firebaseUser: FirebaseAuth.User) async {
         if let user = await userRepository.fetchUser(firebaseUser.uid) {
             authState = .authenticated(user)
+            await setupNotifications(for: user.id)
         } else {
             // First login — prompt the user to choose a display name
             authState = .needsDisplayName(
@@ -54,6 +55,15 @@ final class AuthService {
         }
     }
 
+    // MARK: - Notifications
+
+    /// Requests push notification permission (if not yet determined) and saves the
+    /// FCM token to Firebase so this user can receive game invites.
+    private func setupNotifications(for userId: String) async {
+        await NotificationService.shared.setup()
+        await NotificationService.shared.saveFCMToken(for: userId)
+    }
+
     /// Called from SetDisplayNameView once the user submits their chosen name.
     func createProfile(displayName: String) async {
         guard case .needsDisplayName(let uid, let phone) = authState else { return }
@@ -61,11 +71,13 @@ final class AuthService {
         do {
             let user = try await userRepository.createUser(uid: uid, phoneNumber: phone, displayName: displayName)
             authState = .authenticated(user)
+            await setupNotifications(for: uid)
         } catch {
             // DB write failed — proceed with a local profile so the user isn't stuck
             let user = User(id: uid, phoneNumber: phone, displayName: displayName,
                             createdAt: Date(), friendIds: [], activeGameIds: [])
             authState = .authenticated(user)
+            await setupNotifications(for: uid)
         }
         isLoading = false
     }

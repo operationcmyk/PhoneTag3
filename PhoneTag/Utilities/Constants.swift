@@ -58,5 +58,6 @@ enum GameConstants {
         static let locations = "locations"
         static let friendRequests = "friendRequests"
         static let registrationCodes = "registrationCodes"
+        static let fcmTokens = "fcmTokens"
     }
 }

@@ -159,6 +159,16 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             for pid in allPlayerIds {
                 try await appendGameId(gameId, toUser: pid)
             }
+
+            // Notify invited players (existing users who have an FCM token)
+            let creatorName = await fetchDisplayName(userId: createdBy)
+            await NotificationService.shared.sendGameInviteNotifications(
+                gameId: gameId,
+                gameTitle: title,
+                invitedByName: creatorName,
+                playerIds: allPlayerIds,
+                creatorId: createdBy
+            )
         } catch {
             // Return the in-memory game even if the write failed
         }

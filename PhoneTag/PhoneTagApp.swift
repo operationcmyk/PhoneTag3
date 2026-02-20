@@ -1,6 +1,8 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+@preconcurrency import FirebaseMessaging
+import UserNotifications
 
 @main
 struct PhoneTagApp: App {
@@ -21,10 +23,40 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
 
-        // Only needed for Phone Auth + APNs (safe to leave in)
+        // Set FCM delegate so we receive token refresh callbacks
+        Messaging.messaging().delegate = NotificationService.shared
+
+        // Set notification center delegate so we can show banners while the app is open
+        UNUserNotificationCenter.current().delegate = NotificationService.shared
+
+        // Register for APNs (required for both Phone Auth and push notifications)
         application.registerForRemoteNotifications()
 
         return true
+    }
+
+    // MARK: - APNs callbacks
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        // Forward to Firebase Auth (required for Phone Auth OTP)
+        Auth.auth().setAPNSToken(deviceToken, type: .unknown)
+
+        // Forward to NotificationService → Messaging so FCM can derive its token
+        Task { @MainActor in
+            NotificationService.shared.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+        }
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        Task { @MainActor in
+            NotificationService.shared.didFailToRegisterForRemoteNotifications(error: error)
+        }
     }
 
     func application(
@@ -32,18 +64,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
+        // Let Firebase Auth handle its own silent push (e.g. Phone Auth verification)
         if Auth.auth().canHandleNotification(userInfo) {
             completionHandler(.noData)
             return
         }
         completionHandler(.newData)
-    }
-
-    // Optional but commonly needed for Phone Auth on iOS
-    func application(
-        _ application: UIApplication,
-        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-    ) {
-        Auth.auth().setAPNSToken(deviceToken, type: .unknown) // use .sandbox/.prod if you want
     }
 }
