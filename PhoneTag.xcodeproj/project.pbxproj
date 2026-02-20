@@ -19,6 +19,7 @@
 		3C4D5E6F7A8B9C0D1E2F3A4B /* MockGameRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */; };
 		3D4E5F6A7B8C9D0E1F2A3B4C /* GameMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */; };
 		3F8C38202F48D863004CBB63 /* UserLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8C381F2F48D863004CBB63 /* UserLocationManager.swift */; };
+		3F8C38222F48F93C004CBB63 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F8C38212F48F93C004CBB63 /* LaunchScreen.storyboard */; };
 		3FEF1A532F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FEF1A522F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf */; };
 		3FEF1A542F46271100E916C0 /* badabb__-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FEF1A512F46271100E916C0 /* badabb__-webfont.ttf */; };
 		3FEF1A5A2F46273F00E916C0 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEF1A592F46273F00E916C0 /* SignInView.swift */; };
@@ -85,6 +86,7 @@
 		3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGameRepository.swift; sourceTree = "<group>"; };
 		3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMapView.swift; sourceTree = "<group>"; };
 		3F8C381F2F48D863004CBB63 /* UserLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationManager.swift; sourceTree = "<group>"; };
+		3F8C38212F48F93C004CBB63 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3FEF1A512F46271100E916C0 /* badabb__-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "badabb__-webfont.ttf"; sourceTree = "<group>"; };
 		3FEF1A522F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sf_arch_rival_italic-webfont.ttf"; sourceTree = "<group>"; };
 		3FEF1A562F46273F00E916C0 /* ContentViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewTest.swift; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				8D9E0F1A2B3C4D5E6F7A8B9C /* ViewModels */,
 				18CB5B53CE33E7D09FF64C7E /* Views */,
 				98DA4BA41DFE55AE950E6789 /* PhoneTagApp.swift */,
+				3F8C38212F48F93C004CBB63 /* LaunchScreen.storyboard */,
 			);
 			path = PhoneTag;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				8E0293EA748E4FFB41F315D1 /* Assets.xcassets in Resources */,
 				3FEF1A532F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf in Resources */,
 				3FEF1A542F46271100E916C0 /* badabb__-webfont.ttf in Resources */,
+				3F8C38222F48F93C004CBB63 /* LaunchScreen.storyboard in Resources */,
 				2510D2CC2F455EF000269D74 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -518,16 +522,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = PhoneTag/PhoneTag.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				INFOPLIST_FILE = PhoneTag/Info.plist;
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to notify you when tagged and track tripwire crossings during active games.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show you on the map and enable tagging nearby players.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Phone Tag uses your contacts to show which friends are already on the app and to make it easy to invite others to your game.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to detect tripwire crossings and keep your position updated during active games.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show your position on the map and let other players tag you during games.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = "location remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -613,16 +620,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = PhoneTag/PhoneTag.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = AG222ADDHU;
 				INFOPLIST_FILE = PhoneTag/Info.plist;
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to notify you when tagged and track tripwire crossings during active games.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show you on the map and enable tagging nearby players.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Phone Tag uses your contacts to show which friends are already on the app and to make it easy to invite others to your game.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Phone Tag needs background location access to detect tripwire crossings and keep your position updated during active games.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Phone Tag needs your location to show your position on the map and let other players tag you during games.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = "location remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
