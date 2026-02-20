@@ -105,7 +105,8 @@ struct GameMapView: View {
                                 .foregroundStyle(.yellow)
                                 .shadow(radius: 2)
                         }
-                        MapCircle(center: safeBase.location, radius: GameConstants.safeBaseRadius)
+                        // Use the stored radius so hit zones (80m) render larger than miss zones (50m)
+                        MapCircle(center: safeBase.location, radius: safeBase.effectiveRadius)
                             .foregroundStyle(.yellow.opacity(0.1))
                             .stroke(.yellow.opacity(0.6), lineWidth: 1)
                     }

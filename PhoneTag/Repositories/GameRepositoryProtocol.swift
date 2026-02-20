@@ -16,4 +16,7 @@ protocol GameRepositoryProtocol {
     func purchaseItem(userId: String, product: StoreProduct) async
     func resetDailyTagsIfNeeded(gameId: String, userId: String)
     func joinGame(byCode code: String, userId: String) async -> Game?
+    /// Deducts one strike from a player who has been offline for 48h.
+    /// Returns the player's name and whether they were eliminated (strikes hit 0).
+    func deductStrikeForInactivity(gameId: String, userId: String) async -> (playerName: String, wasEliminated: Bool)?
 }
