@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+@preconcurrency import FirebaseDatabase
 
 /// Session-level location uploader. Lives as long as the user is authenticated,
 /// completely independent of which screen is visible or whether a game is active.
@@ -13,11 +14,15 @@ final class UserLocationManager: ObservableObject {
 
     private let locationService: LocationService
     private let locationRepository = LocationRepository()
+    private let gameRepository: GameRepositoryProtocol
     private var userId: String?
     private var uploadTask: Task<Void, Never>?
 
-    init(locationService: LocationService) {
+    private static let twentyFourHoursMs: Double = 86_400_000
+
+    init(locationService: LocationService, gameRepository: GameRepositoryProtocol) {
         self.locationService = locationService
+        self.gameRepository = gameRepository
     }
 
     // MARK: - Session Lifecycle
@@ -68,12 +73,61 @@ final class UserLocationManager: ObservableObject {
               let location = locationService.currentLocation,
               locationService.shouldUploadLocation() else { return }
 
+        // Read the previous upload timestamp BEFORE writing the new one,
+        // so we can determine whether the user was "offline" for 24+ hours.
+        let previousUploadMs = await locationRepository.fetchLastUploadedAt(userId: userId)
+
         do {
             try await locationRepository.uploadLocation(userId: userId, location: location)
             locationService.didUploadLocation()
             print("📍 [UserLocationManager] Location uploaded for userId=\(userId)")
         } catch {
             print("❌ [UserLocationManager] Upload failed: \(error)")
+            return
+        }
+
+        // Check if user was offline for more than 24 hours.
+        let nowMs = Date().timeIntervalSince1970 * 1000
+        let gapMs = nowMs - (previousUploadMs ?? nowMs)
+        if gapMs > Self.twentyFourHoursMs {
+            print("👀 [UserLocationManager] User \(userId) was offline for \(Int(gapMs / 3_600_000))h — sending return notifications.")
+            Task { await notifyReturnedInAllGames(userId: userId) }
+        }
+    }
+
+    /// Sends a "player is back" notification to co-players in every active game.
+    private func notifyReturnedInAllGames(userId: String) async {
+        let games = await gameRepository.fetchGames(for: userId)
+        let activeGames = games.filter { $0.status == .active }
+        guard !activeGames.isEmpty else { return }
+
+        let displayName = await fetchDisplayName(userId: userId)
+
+        for game in activeGames {
+            let activePlayers = game.players
+                .filter { $0.value.isActive }
+                .map { $0.key }
+            await NotificationService.shared.sendPlayerReturnedNotification(
+                gameId: game.id,
+                gameTitle: game.title,
+                returnedPlayerName: displayName,
+                playerIds: activePlayers,
+                returnedId: userId
+            )
+        }
+    }
+
+    /// Fetches the display name for a user from Firebase.
+    private func fetchDisplayName(userId: String) async -> String {
+        do {
+            let snapshot = try await FirebaseDatabase.Database.database().reference()
+                .child(GameConstants.FirebasePath.users)
+                .child(userId)
+                .child("displayName")
+                .getData()
+            return snapshot.value as? String ?? "A player"
+        } catch {
+            return "A player"
         }
     }
 }

@@ -13,6 +13,7 @@ enum GameNotificationType: String {
     case tripwireTriggered = "tripwire_triggered"
     case gameStarted = "game_started"
     case eliminated = "eliminated"
+    case playerReturned = "player_returned"
 }
 
 // MARK: - NotificationService
@@ -78,12 +79,8 @@ final class NotificationService: NSObject, ObservableObject {
     }
 
     /// Called by AppDelegate when APNs vends a device token.
-    /// Passes the token to FirebaseMessaging so it can derive the FCM token.
-    /// FCM needs the APNs token before it can vend its own token, so we
-    /// attempt to re-save immediately after handing it off.
     func didRegisterForRemoteNotifications(deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
-        // Re-attempt token save now that APNs token is available.
         if let userId = currentUserId {
             Task { await saveFCMToken(for: userId) }
         }
@@ -127,87 +124,65 @@ final class NotificationService: NSObject, ObservableObject {
         }
     }
 
-    // MARK: - Send Tag Warning Notification
+    // MARK: - Generic Dispatcher (private)
 
-    /// Sends a "tag nearby" warning to a player whose actual location is within
-    /// the warning radius of the guessed tag location.
-    func sendTagWarningNotification(
-        to userId: String,
-        taggerName: String,
-        gameTitle: String
+    /// Sends a notification to a single recipient via the `sendNotification` Cloud Function.
+    private func send(
+        to token: String,
+        title: String,
+        body: String,
+        data: [String: String],
+        logLabel: String
     ) async {
-        guard let token = await fetchFCMToken(for: userId) else {
-            print("ℹ️ [NotificationService] No FCM token for userId=\(userId) — skipping tag warning.")
-            return
-        }
-
         let payload: [String: Any] = [
-            "recipientToken": token,
-            "taggerName": taggerName,
-            "gameTitle": gameTitle
+            "title": title,
+            "body": body,
+            "data": data,
+            "token": token
         ]
-
         do {
-            _ = try await functions.httpsCallable("sendTagWarning").call(payload)
-            print("✅ [NotificationService] Tag warning sent to userId=\(userId)")
+            _ = try await functions.httpsCallable("sendNotification").call(payload)
+            print("✅ [NotificationService] \(logLabel) sent")
         } catch {
-            print("❌ [NotificationService] sendTagWarning error: \(error)")
+            print("❌ [NotificationService] \(logLabel) error: \(error)")
         }
     }
 
-    // MARK: - Send Nudge Notification
-
-    /// Sends a "your turn" push notification to every other player in the game.
-    /// Excludes the nudger themselves.
-    func sendNudgeNotifications(
-        gameId: String,
-        gameTitle: String,
-        nudgedByName: String,
-        playerIds: [String],
-        nudgerId: String
+    /// Sends a notification to multiple recipients via the `sendNotification` Cloud Function.
+    private func send(
+        to tokens: [String: String],
+        title: String,
+        body: String,
+        data: [String: String],
+        logLabel: String
     ) async {
-        let recipients = playerIds.filter { $0 != nudgerId }
-        guard !recipients.isEmpty else { return }
+        let payload: [String: Any] = [
+            "title": title,
+            "body": body,
+            "data": data,
+            "tokens": tokens
+        ]
+        do {
+            _ = try await functions.httpsCallable("sendNotification").call(payload)
+            print("✅ [NotificationService] \(logLabel) dispatched to \(tokens.count) recipient(s)")
+        } catch {
+            print("❌ [NotificationService] \(logLabel) error: \(error)")
+        }
+    }
 
-        var tokensForRecipients: [String: String] = [:]
-        for userId in recipients {
+    /// Collects FCM tokens for a list of user IDs, excluding one (e.g. the sender).
+    private func collectTokens(for userIds: [String], excluding excludedId: String? = nil) async -> [String: String] {
+        var result: [String: String] = [:]
+        for userId in userIds where userId != excludedId {
             if let token = await fetchFCMToken(for: userId) {
-                tokensForRecipients[userId] = token
+                result[userId] = token
             }
         }
-
-        guard !tokensForRecipients.isEmpty else {
-            print("ℹ️ [NotificationService] No FCM tokens found for nudge recipients — skipping.")
-            return
-        }
-
-        let payload: [String: Any] = [
-            "gameId": gameId,
-            "gameTitle": gameTitle,
-            "nudgedByName": nudgedByName,
-            "recipientTokens": tokensForRecipients
-        ]
-
-        do {
-            _ = try await functions.httpsCallable("nudgePlayers").call(payload)
-            print("✅ [NotificationService] Nudge notifications dispatched for gameId=\(gameId)")
-        } catch {
-            print("❌ [NotificationService] nudgePlayers Cloud Function error: \(error)")
-        }
+        return result
     }
 
-    // MARK: - Send Game Invite Notification
+    // MARK: - Game Invite
 
-    /// Sends a push notification to each invited player (those who are existing users).
-    /// Uses a Firebase Cloud Function `sendGameInvite` to perform the actual FCM send
-    /// (keeping server credentials off the device).
-    ///
-    /// - Parameters:
-    ///   - gameId: The newly-created game's ID.
-    ///   - gameTitle: Human-readable game title for the notification body.
-    ///   - invitedByName: Display name of the player who created the game.
-    ///   - playerIds: All player UIDs in the game (creator + invitees).
-    ///   - creatorId: The UID of the game creator — they are excluded from receiving the invite.
     func sendGameInviteNotifications(
         gameId: String,
         gameTitle: String,
@@ -215,36 +190,130 @@ final class NotificationService: NSObject, ObservableObject {
         playerIds: [String],
         creatorId: String
     ) async {
-        let recipients = playerIds.filter { $0 != creatorId }
-        guard !recipients.isEmpty else { return }
+        let tokens = await collectTokens(for: playerIds, excluding: creatorId)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "Phone Tag — You've been invited!",
+            body: "\(invitedByName) invited you to play \"\(gameTitle)\". Tap to join!",
+            data: ["type": GameNotificationType.gameInvite.rawValue, "gameId": gameId, "gameTitle": gameTitle],
+            logLabel: "Game invite (\(gameId))"
+        )
+    }
 
-        // Collect FCM tokens for existing users
-        var tokensForRecipients: [String: String] = [:]
-        for userId in recipients {
-            if let token = await fetchFCMToken(for: userId) {
-                tokensForRecipients[userId] = token
-            }
-        }
+    // MARK: - Nudge
 
-        guard !tokensForRecipients.isEmpty else {
-            print("ℹ️ [NotificationService] No FCM tokens found for recipients — skipping invite notifications.")
-            return
-        }
+    func sendNudgeNotifications(
+        gameId: String,
+        gameTitle: String,
+        nudgedByName: String,
+        playerIds: [String],
+        nudgerId: String
+    ) async {
+        let tokens = await collectTokens(for: playerIds, excluding: nudgerId)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "Phone Tag — Your turn!",
+            body: "\(nudgedByName) is waiting for you in \"\(gameTitle)\". Get out there!",
+            data: ["type": "nudge", "gameId": gameId, "gameTitle": gameTitle],
+            logLabel: "Nudge (\(gameId))"
+        )
+    }
 
-        // Call the Cloud Function with the token map + game details
-        let payload: [String: Any] = [
-            "gameId": gameId,
-            "gameTitle": gameTitle,
-            "invitedByName": invitedByName,
-            "recipientTokens": tokensForRecipients
-        ]
+    // MARK: - Tag Warning
 
-        do {
-            _ = try await functions.httpsCallable("sendGameInvite").call(payload)
-            print("✅ [NotificationService] Game invite notifications dispatched for gameId=\(gameId)")
-        } catch {
-            print("❌ [NotificationService] sendGameInvite Cloud Function error: \(error)")
-        }
+    func sendTagWarningNotification(
+        to userId: String,
+        taggerName: String,
+        gameTitle: String
+    ) async {
+        guard let token = await fetchFCMToken(for: userId) else { return }
+        await send(
+            to: token,
+            title: "📍 Tag incoming!",
+            body: "Someone just dropped a tag near you in \"\(gameTitle)\" — you better get moving!",
+            data: ["type": "tag_warning", "gameTitle": gameTitle, "taggerName": taggerName],
+            logLabel: "Tag warning → \(userId)"
+        )
+    }
+
+    // MARK: - Hit
+
+    func sendHitNotification(
+        to userId: String,
+        taggerName: String,
+        tagType: TagType,
+        gameId: String,
+        gameTitle: String
+    ) async {
+        guard let token = await fetchFCMToken(for: userId) else { return }
+        let weaponLabel = tagType == .wideRadius ? "wide-radius tag" : "basic tag"
+        await send(
+            to: token,
+            title: "💥 You've been tagged!",
+            body: "\(taggerName) hit you with a \(weaponLabel) in \"\(gameTitle)\"! -1 life, loser.",
+            data: ["type": GameNotificationType.tagged.rawValue, "gameId": gameId, "gameTitle": gameTitle, "taggerName": taggerName, "tagType": tagType.rawValue],
+            logLabel: "Hit → \(userId)"
+        )
+    }
+
+    // MARK: - Elimination
+
+    func sendEliminationNotification(
+        gameId: String,
+        gameTitle: String,
+        eliminatedPlayerName: String,
+        playerIds: [String],
+        eliminatedId: String
+    ) async {
+        let tokens = await collectTokens(for: playerIds, excluding: eliminatedId)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "☠️ Player eliminated!",
+            body: "\(eliminatedPlayerName) has been eliminated from \"\(gameTitle)\"!  So Sad.",
+            data: ["type": GameNotificationType.eliminated.rawValue, "gameId": gameId, "gameTitle": gameTitle, "eliminatedPlayerName": eliminatedPlayerName],
+            logLabel: "Elimination (\(gameId))"
+        )
+    }
+
+    // MARK: - Game Started
+
+    func sendGameStartedNotification(
+        gameId: String,
+        gameTitle: String,
+        playerIds: [String]
+    ) async {
+        let tokens = await collectTokens(for: playerIds)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "🏁 Game on!",
+            body: "Everyone is set — \"\(gameTitle)\" has begun! LFG!",
+            data: ["type": GameNotificationType.gameStarted.rawValue, "gameId": gameId, "gameTitle": gameTitle],
+            logLabel: "Game started (\(gameId))"
+        )
+    }
+
+    // MARK: - Player Returned
+
+    func sendPlayerReturnedNotification(
+        gameId: String,
+        gameTitle: String,
+        returnedPlayerName: String,
+        playerIds: [String],
+        returnedId: String
+    ) async {
+        let tokens = await collectTokens(for: playerIds, excluding: returnedId)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "👀 \(returnedPlayerName) is back!",
+            body: "\(returnedPlayerName) just came back online in \"\(gameTitle)\" — no more hiding!",
+            data: ["type": GameNotificationType.playerReturned.rawValue, "gameId": gameId, "gameTitle": gameTitle, "returnedPlayerName": returnedPlayerName],
+            logLabel: "Player returned (\(gameId))"
+        )
     }
 }
 
@@ -271,7 +340,6 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
 
         switch type {
         case .gameInvite:
-            // Post so the UI can navigate to the game or show the invite
             if let gameId = userInfo["gameId"] as? String {
                 NotificationCenter.default.post(
                     name: .didReceiveGameInvite,
@@ -293,6 +361,14 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
             }
         case .eliminated:
             NotificationCenter.default.post(name: .didReceiveEliminatedNotification, object: nil, userInfo: userInfo as? [String: Any])
+        case .playerReturned:
+            if let gameId = userInfo["gameId"] as? String {
+                NotificationCenter.default.post(
+                    name: .didReceivePlayerReturnedNotification,
+                    object: nil,
+                    userInfo: ["gameId": gameId]
+                )
+            }
         }
     }
 }
@@ -308,7 +384,6 @@ extension NotificationService: MessagingDelegate {
         print("ℹ️ [NotificationService] FCM token refreshed: \(token)")
         Task { @MainActor in
             self.fcmToken = token
-            // Re-persist the refreshed token so recipients can always be reached.
             if let userId = self.currentUserId {
                 await self.saveFCMToken(for: userId)
             }
@@ -324,4 +399,5 @@ extension Notification.Name {
     static let didReceiveTripwireNotification = Notification.Name("didReceiveTripwireNotification")
     static let didReceiveGameStarted = Notification.Name("didReceiveGameStarted")
     static let didReceiveEliminatedNotification = Notification.Name("didReceiveEliminatedNotification")
+    static let didReceivePlayerReturnedNotification = Notification.Name("didReceivePlayerReturnedNotification")
 }
