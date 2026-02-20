@@ -7,6 +7,9 @@ struct SafeBase: Identifiable, Codable, Sendable {
     let createdAt: Date
     let type: SafeBaseType
     let expiresAt: Date?  // nil = permanent
+    /// Radius in metres for collision detection and map display.
+    /// Defaults to `safeBaseRadius` if not stored (backward-compat with old data).
+    let radius: Double?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -14,6 +17,12 @@ struct SafeBase: Identifiable, Codable, Sendable {
         case createdAt
         case type
         case expiresAt
+        case radius
+    }
+
+    /// Effective radius to use — falls back to the constant for legacy records.
+    var effectiveRadius: Double {
+        radius ?? GameConstants.safeBaseRadius
     }
 }
 

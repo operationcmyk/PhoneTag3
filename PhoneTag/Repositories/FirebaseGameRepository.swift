@@ -289,7 +289,7 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
 
             guard distance <= tagRadius else { continue }
 
-            // Check home bases
+            // Check home bases (target's own home bases)
             let isAtHomeBase = [playerState.homeBase1, playerState.homeBase2]
                 .compactMap { $0 }
                 .contains { hb in
@@ -298,10 +298,12 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                 }
             if isAtHomeBase { return .blocked(reason: .homeBase) }
 
-            // Check safe bases
-            let isAtSafeBase = playerState.safeBases.contains { sb in
+            // Rule: A player cannot be tagged in ANY safe zone on the map — theirs OR anyone else's.
+            // Collect every safe base from every player in the game.
+            let allSafeBases = game.players.values.flatMap { $0.safeBases }
+            let isAtSafeBase = allSafeBases.contains { sb in
                 actualCL.distance(from: CLLocation(latitude: sb.location.latitude, longitude: sb.location.longitude))
-                    <= GameConstants.safeBaseRadius
+                    <= sb.effectiveRadius
             }
             if isAtSafeBase { return .blocked(reason: .safeBase) }
 
@@ -317,12 +319,14 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             targetState.strikes = max(0, targetState.strikes - 1)
             if targetState.strikes == 0 { targetState.isActive = false }
 
+            // Rule: Hit safe zone is always basic-tag-sized (80m), regardless of weapon used.
             let permanentBase = SafeBase(
                 id: UUID().uuidString,
                 location: actualCoord,
                 createdAt: Date(),
                 type: .hitTag,
-                expiresAt: nil
+                expiresAt: nil,
+                radius: GameConstants.basicTagRadius
             )
             targetState.safeBases.append(permanentBase)
             await updatePlayerState(gameId: gameId, userId: hitId, state: targetState)
@@ -380,7 +384,8 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                     location: guessedLocation,
                     createdAt: Date(),
                     type: .missedTag,
-                    expiresAt: midnight
+                    expiresAt: midnight,
+                    radius: GameConstants.safeBaseRadius
                 )
                 opponentState.safeBases.append(tempBase)
                 await updatePlayerState(gameId: gameId, userId: opponentId, state: opponentState)
@@ -451,6 +456,28 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             }
             await updatePlayerState(gameId: gameId, userId: userId, state: state)
         }
+    }
+
+    // MARK: - Inactivity Strike Deduction
+
+    func deductStrikeForInactivity(gameId: String, userId: String) async -> (playerName: String, wasEliminated: Bool)? {
+        guard let game = await fetchGame(by: gameId),
+              game.status == .active,
+              var state = game.players[userId],
+              state.isActive,
+              state.strikes > 0 else { return nil }
+
+        state.strikes = max(0, state.strikes - 1)
+        if state.strikes == 0 { state.isActive = false }
+
+        await updatePlayerState(gameId: gameId, userId: userId, state: state)
+
+        if state.strikes == 0 {
+            await checkAndCompleteGame(gameId: gameId)
+        }
+
+        let playerName = await fetchDisplayName(userId: userId)
+        return (playerName: playerName, wasEliminated: state.strikes == 0)
     }
 
     // MARK: - Join by Code

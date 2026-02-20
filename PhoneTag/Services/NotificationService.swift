@@ -14,6 +14,8 @@ enum GameNotificationType: String {
     case gameStarted = "game_started"
     case eliminated = "eliminated"
     case playerReturned = "player_returned"
+    case offlineWarning = "offline_warning"    // Sent to the player themselves 1h before losing a life
+    case offlineStrikeLost = "offline_strike"  // Sent to all players when someone loses a life from being offline
 }
 
 // MARK: - NotificationService
@@ -296,6 +298,39 @@ final class NotificationService: NSObject, ObservableObject {
         )
     }
 
+    // MARK: - Offline Warning (sent to the player themselves, 1h before losing a life)
+
+    func sendOfflineWarningNotification(to userId: String, gameTitle: String, gameId: String) async {
+        guard let token = await fetchFCMToken(for: userId) else { return }
+        await send(
+            to: token,
+            title: "⚠️ You're about to lose a life!",
+            body: "You've been offline for 47 hours in \"\(gameTitle)\". Log in within 1 hour or lose a life!",
+            data: ["type": GameNotificationType.offlineWarning.rawValue, "gameId": gameId, "gameTitle": gameTitle],
+            logLabel: "Offline warning to \(userId) for game \(gameId)"
+        )
+    }
+
+    // MARK: - Offline Strike Lost (broadcast to all players when someone loses a life from inactivity)
+
+    func sendOfflineStrikeLostNotification(
+        offlinePlayerName: String,
+        gameId: String,
+        gameTitle: String,
+        playerIds: [String],
+        offlinePlayerId: String
+    ) async {
+        let tokens = await collectTokens(for: playerIds, excluding: offlinePlayerId)
+        guard !tokens.isEmpty else { return }
+        await send(
+            to: tokens,
+            title: "💀 \(offlinePlayerName) lost a life!",
+            body: "\(offlinePlayerName) was offline for 48 hours in \"\(gameTitle)\" and lost a life.",
+            data: ["type": GameNotificationType.offlineStrikeLost.rawValue, "gameId": gameId, "gameTitle": gameTitle, "offlinePlayerName": offlinePlayerName],
+            logLabel: "Offline strike lost (\(gameId)) for \(offlinePlayerId)"
+        )
+    }
+
     // MARK: - Player Returned
 
     func sendPlayerReturnedNotification(
@@ -365,6 +400,18 @@ extension NotificationService: @preconcurrency UNUserNotificationCenterDelegate 
             if let gameId = userInfo["gameId"] as? String {
                 NotificationCenter.default.post(
                     name: .didReceivePlayerReturnedNotification,
+                    object: nil,
+                    userInfo: ["gameId": gameId]
+                )
+            }
+        case .offlineWarning:
+            // The tapped notification deep-links the user into the app — no extra action needed.
+            break
+        case .offlineStrikeLost:
+            // Notify the app to refresh game state so the updated strikes show immediately.
+            if let gameId = userInfo["gameId"] as? String {
+                NotificationCenter.default.post(
+                    name: .didReceiveGameStarted,   // Reuse game-refresh signal
                     object: nil,
                     userInfo: ["gameId": gameId]
                 )

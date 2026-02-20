@@ -272,13 +272,14 @@ final class MockGameRepository: GameRepositoryProtocol {
                 checkGameCompletion(gameIdx: gameIdx)
             }
 
-            // Create permanent safe base at target's actual location
+            // Create permanent safe base at target's actual location (basic-tag-sized)
             let permanentBase = SafeBase(
                 id: UUID().uuidString,
                 location: actualCoord,
                 createdAt: Date(),
                 type: .hitTag,
-                expiresAt: nil
+                expiresAt: nil,
+                radius: GameConstants.basicTagRadius
             )
             games[gameIdx].players[hitId]?.safeBases.append(permanentBase)
 
@@ -308,7 +309,8 @@ final class MockGameRepository: GameRepositoryProtocol {
                     location: guessedLocation,
                     createdAt: Date(),
                     type: .missedTag,
-                    expiresAt: midnight
+                    expiresAt: midnight,
+                    radius: GameConstants.safeBaseRadius
                 )
                 games[gameIdx].players[opponentId]?.safeBases.append(tempBase)
             }
@@ -389,6 +391,18 @@ final class MockGameRepository: GameRepositoryProtocol {
             }
             return false
         }
+    }
+
+    func deductStrikeForInactivity(gameId: String, userId: String) async -> (playerName: String, wasEliminated: Bool)? {
+        guard let idx = games.firstIndex(where: { $0.id == gameId }),
+              var state = games[idx].players[userId],
+              state.isActive,
+              state.strikes > 0 else { return nil }
+        state.strikes = max(0, state.strikes - 1)
+        if state.strikes == 0 { state.isActive = false }
+        games[idx].players[userId] = state
+        let name = playerNames[userId] ?? "Player"
+        return (playerName: name, wasEliminated: state.strikes == 0)
     }
 
     // MARK: - Private
