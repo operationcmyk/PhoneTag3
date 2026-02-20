@@ -18,6 +18,7 @@
 		2D3E4F5A6B7C8D9E0F1A2B3C /* PlayerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C4D5E6F7A8B9C0D1E2F3A /* PlayerStatusView.swift */; };
 		3C4D5E6F7A8B9C0D1E2F3A4B /* MockGameRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */; };
 		3D4E5F6A7B8C9D0E1F2A3B4C /* GameMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */; };
+		3F8C38202F48D863004CBB63 /* UserLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8C381F2F48D863004CBB63 /* UserLocationManager.swift */; };
 		3FEF1A532F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FEF1A522F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf */; };
 		3FEF1A542F46271100E916C0 /* badabb__-webfont.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FEF1A512F46271100E916C0 /* badabb__-webfont.ttf */; };
 		3FEF1A5A2F46273F00E916C0 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEF1A592F46273F00E916C0 /* SignInView.swift */; };
@@ -83,6 +84,7 @@
 		35F0CD5766A8BA40902A6F93 /* SafeBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeBase.swift; sourceTree = "<group>"; };
 		3A4B5C6D7E8F9A0B1C2D3E4F /* MockGameRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockGameRepository.swift; sourceTree = "<group>"; };
 		3B4C5D6E7F8A9B0C1D2E3F4A /* GameMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMapView.swift; sourceTree = "<group>"; };
+		3F8C381F2F48D863004CBB63 /* UserLocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLocationManager.swift; sourceTree = "<group>"; };
 		3FEF1A512F46271100E916C0 /* badabb__-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "badabb__-webfont.ttf"; sourceTree = "<group>"; };
 		3FEF1A522F46271100E916C0 /* sf_arch_rival_italic-webfont.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sf_arch_rival_italic-webfont.ttf"; sourceTree = "<group>"; };
 		3FEF1A562F46273F00E916C0 /* ContentViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewTest.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		E1F2A3B4C5D6E7F8A9B0C1D2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				3F8C381F2F48D863004CBB63 /* UserLocationManager.swift */,
 				8387A8A92F4807270090B4C4 /* NotificationService.swift */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* AuthService.swift */,
 				C3D4E5F6A7B8C9D0E1F2A3B4 /* LocationService.swift */,
@@ -420,6 +423,7 @@
 				0C1D2E3F4A5B6C7D8E9F0A1B /* GameBoardView.swift in Sources */,
 				1D2E3F4A5B6C7D8E9F0A1B2C /* GameListRowView.swift in Sources */,
 				3FEF1A5A2F46273F00E916C0 /* SignInView.swift in Sources */,
+				3F8C38202F48D863004CBB63 /* UserLocationManager.swift in Sources */,
 				3FEF1A5B2F46273F00E916C0 /* HomeViewTest.swift in Sources */,
 				8387A8AA2F4807270090B4C4 /* NotificationService.swift in Sources */,
 				3FEF1A5C2F46273F00E916C0 /* ContentViewTest.swift in Sources */,

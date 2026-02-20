@@ -8,6 +8,7 @@ actor LocationRepository {
     private let database = Database.database().reference()
 
     /// Upload the user's current location to Firebase.
+    /// Also updates `lastUploadedAt` (used for 24-hour offline detection).
     func uploadLocation(userId: String, location: CLLocation) async throws {
         let locationData: [String: Any] = [
             "latitude": location.coordinate.latitude,
@@ -16,11 +17,27 @@ actor LocationRepository {
             "accuracy": location.horizontalAccuracy
         ]
 
-        try await database
+        let userRef = database
             .child(GameConstants.FirebasePath.locations)
             .child(userId)
-            .child("current")
-            .setValue(locationData)
+
+        try await userRef.child("current").setValue(locationData)
+        try await userRef.child("lastUploadedAt").setValue(ServerValue.timestamp())
+    }
+
+    /// Fetches the server timestamp (ms since epoch) of the last location upload for a user.
+    /// Returns nil if no upload has been recorded yet.
+    func fetchLastUploadedAt(userId: String) async -> Double? {
+        do {
+            let snapshot = try await database
+                .child(GameConstants.FirebasePath.locations)
+                .child(userId)
+                .child("lastUploadedAt")
+                .getData()
+            return snapshot.value as? Double
+        } catch {
+            return nil
+        }
     }
 
     /// Fetch another user's most recent location. Returns nil if not available.

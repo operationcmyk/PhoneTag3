@@ -329,6 +329,33 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             await checkAndCompleteGame(gameId: gameId)
 
             let targetName = await fetchDisplayName(userId: hitId)
+
+            // Notify the hit player (or all others on elimination)
+            let allPlayerIds = Array(game.players.keys)
+            if targetState.strikes == 0 {
+                // Player eliminated — notify everyone else
+                Task {
+                    await NotificationService.shared.sendEliminationNotification(
+                        gameId: gameId,
+                        gameTitle: game.title,
+                        eliminatedPlayerName: targetName,
+                        playerIds: allPlayerIds,
+                        eliminatedId: hitId
+                    )
+                }
+            } else {
+                // Player hit but still alive — notify them only
+                Task {
+                    await NotificationService.shared.sendHitNotification(
+                        to: hitId,
+                        taggerName: taggerName,
+                        tagType: tagType,
+                        gameId: gameId,
+                        gameTitle: game.title
+                    )
+                }
+            }
+
             return .hit(
                 actualLocation: GeoPoint(latitude: actualCoord.latitude, longitude: actualCoord.longitude),
                 distance: closestDistance,
@@ -524,6 +551,16 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                 .child(gameId)
                 .child("startedAt")
                 .setValue(ServerValue.timestamp())
+
+            // Notify all players the game has begun
+            let allPlayerIds = Array(game.players.keys)
+            Task {
+                await NotificationService.shared.sendGameStartedNotification(
+                    gameId: gameId,
+                    gameTitle: game.title,
+                    playerIds: allPlayerIds
+                )
+            }
         } catch {}
     }
 

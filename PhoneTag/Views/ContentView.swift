@@ -37,7 +37,7 @@ struct ContentView: View {
                 .onAppear {
                     // Start once per session; guard prevents restarting on every re-appear.
                     guard userLocationManager == nil else { return }
-                    let manager = UserLocationManager(locationService: locationService)
+                    let manager = UserLocationManager(locationService: locationService, gameRepository: gameRepository)
                     manager.start(userId: user.id)
                     userLocationManager = manager
                 }

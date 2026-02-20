@@ -11,7 +11,15 @@
       "Bash(/opt/homebrew/bin/node:*)",
       "Bash(PATH=\"/opt/homebrew/bin:$PATH\")",
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(nvm install:*)",
+      "Bash(nvm use:*)",
+      "Bash(export NVM_DIR=\"$HOME/.nvm\")",
+      "Bash(source \"$NVM_DIR/nvm.sh\")",
+      "Bash(. ~/.nvm/nvm.sh)",
+      "Bash(sudo xcode-select:*)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild:*)"
     ]
   }
 }
