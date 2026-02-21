@@ -268,6 +268,16 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
         let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
 
+        // Block if the tagger is trying to re-tag a location they already missed in the last 24h.
+        // Miss safe bases are stored on opponent states but tagged with the tagger's userId.
+        let allMisses = game.players.values.flatMap { $0.safeBases }
+            .filter { $0.type == .missedTag && $0.taggerUserId == fromUserId }
+        let isDuplicate = allMisses.contains { miss in
+            let missLocation = CLLocation(latitude: miss.location.latitude, longitude: miss.location.longitude)
+            return guessedCL.distance(from: missLocation) <= miss.effectiveRadius
+        }
+        if isDuplicate { return .blocked(reason: .duplicateLocation) }
+
         var closestDistance = Double.greatestFiniteMagnitude
         var hitPlayerId: String?
 
@@ -323,6 +333,8 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             targetState.strikes = max(0, targetState.strikes - 1)
             if targetState.strikes == 0 { targetState.isActive = false }
 
+            let targetName = await fetchDisplayName(userId: hitId)
+
             // Rule: Hit safe zone is always basic-tag-sized (80m), regardless of weapon used.
             let permanentBase = SafeBase(
                 id: UUID().uuidString,
@@ -330,13 +342,13 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                 createdAt: Date(),
                 type: .hitTag,
                 expiresAt: nil,
-                radius: GameConstants.basicTagRadius
+                radius: GameConstants.basicTagRadius,
+                taggerName: taggerName,
+                targetName: targetName
             )
             targetState.safeBases.append(permanentBase)
             await updatePlayerState(gameId: gameId, userId: hitId, state: targetState)
             await checkAndCompleteGame(gameId: gameId)
-
-            let targetName = await fetchDisplayName(userId: hitId)
 
             // Notify the hit player (or all others on elimination)
             let allPlayerIds = Array(game.players.keys)
@@ -389,7 +401,9 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
                     createdAt: Date(),
                     type: .missedTag,
                     expiresAt: midnight,
-                    radius: GameConstants.safeBaseRadius
+                    radius: GameConstants.safeBaseRadius,
+                    taggerName: nil,
+                    taggerUserId: fromUserId
                 )
                 opponentState.safeBases.append(tempBase)
                 await updatePlayerState(gameId: gameId, userId: opponentId, state: opponentState)
@@ -507,6 +521,9 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         triggeredState.strikes = max(0, triggeredState.strikes - 1)
         if triggeredState.strikes == 0 { triggeredState.isActive = false }
 
+        let triggeredName = await fetchDisplayName(userId: triggeredByUserId)
+        let placerName = await fetchDisplayName(userId: placerUserId)
+
         // Create a permanent safe zone at the tripwire location (basic-tag-sized, same rules as a hit)
         let permanentBase = SafeBase(
             id: UUID().uuidString,
@@ -514,7 +531,9 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             createdAt: Date(),
             type: .hitTag,
             expiresAt: nil,
-            radius: GameConstants.basicTagRadius
+            radius: GameConstants.basicTagRadius,
+            taggerName: placerName,
+            targetName: triggeredName
         )
         triggeredState.safeBases.append(permanentBase)
         await updatePlayerState(gameId: gameId, userId: triggeredByUserId, state: triggeredState)
@@ -527,10 +546,6 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
 
         // Remove the geofence (it's now consumed)
         locationService?.removeGeofence(identifier: tripwireId)
-
-        // Check if the hit eliminated the triggered player
-        let triggeredName = await fetchDisplayName(userId: triggeredByUserId)
-        let placerName = await fetchDisplayName(userId: placerUserId)
         let allPlayerIds = Array(game.players.keys)
 
         if triggeredState.strikes == 0 {

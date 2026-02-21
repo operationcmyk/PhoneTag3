@@ -7,21 +7,29 @@ struct GameBoardView: View {
     @State private var showingStore = false
     @State private var showingLeaveConfirm = false
 
+    private var isCompleted: Bool { viewModel.game.status == .completed }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             // Full-screen map
             GameMapView(
                 cameraPosition: $viewModel.cameraPosition,
-                homeBase: viewModel.myPlayerState?.homeBase1,
-                homeBase2: viewModel.mySafeZone2,
+                homeBase: isCompleted ? nil : viewModel.myPlayerState?.homeBase1,
+                homeBase2: isCompleted ? nil : viewModel.mySafeZone2,
                 homeBaseColor: viewModel.myColor,
-                otherPlayersHomeBases: viewModel.otherPlayersHomeBases,
+                otherPlayersHomeBases: isCompleted
+                    ? viewModel.allPlayersHomeBases
+                    : viewModel.otherPlayersHomeBases,
                 tempHomeBase: viewModel.tempHomeBase,
                 safeZonePlacementNumber: viewModel.safeZonePlacementNumber,
-                safeBases: viewModel.myPlayerState?.safeBases ?? [],
+                safeBases: isCompleted
+                    ? viewModel.allPlayersSafeBases
+                    : (viewModel.myPlayerState?.safeBases ?? []),
                 tags: viewModel.visibleTags,
                 radarResult: viewModel.showingRadar ? viewModel.radarResult : nil,
-                myTripwires: viewModel.myPlayerState?.tripwires ?? [],
+                myTripwires: isCompleted
+                    ? viewModel.allTripwires
+                    : (viewModel.myPlayerState?.tripwires ?? []),
                 isSettingBase: viewModel.isSettingHomeBase,
                 isTagging: viewModel.isTagging,
                 onTap: { coordinate in
@@ -48,7 +56,15 @@ struct GameBoardView: View {
 
                 Spacer()
 
-                if viewModel.isSettingHomeBase {
+                if viewModel.game.status == .completed {
+                    GameCompletedBottomBar(
+                        playerIds: viewModel.sortedPlayerIds,
+                        currentUserId: viewModel.userId,
+                        allPlayerStates: viewModel.game.players,
+                        playerNames: viewModel.playerNames,
+                        winner: viewModel.winner
+                    )
+                } else if viewModel.isSettingHomeBase {
                     HomeBaseSetupOverlay(
                         stepNumber: viewModel.safeZonePlacementNumber,
                         hasDroppedPin: viewModel.hasDroppedTempPin,
@@ -90,18 +106,29 @@ struct GameBoardView: View {
             GameBoardTopBar(
                 title: viewModel.game.title,
                 status: viewModel.game.status,
-                playerCount: viewModel.game.players.count
+                playerCount: viewModel.game.players.count,
+                winner: viewModel.winner,
+                currentUserWon: viewModel.currentUserWon
             )
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(role: .destructive) {
-                    showingLeaveConfirm = true
-                } label: {
-                    Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
-                        .foregroundStyle(.red)
+                if viewModel.game.status == .completed {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark.circle")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Button(role: .destructive) {
+                        showingLeaveConfirm = true
+                    } label: {
+                        Label("Leave", systemImage: "rectangle.portrait.and.arrow.right")
+                            .foregroundStyle(.red)
+                    }
                 }
             }
         }
@@ -183,6 +210,8 @@ struct GameBoardView: View {
                 return "You're out of tags for today."
             case .playerEliminated:
                 return "That player is already eliminated."
+            case .duplicateLocation:
+                return "You already tagged this spot. You can't tag the same location twice in 24 hours."
             }
         }
     }

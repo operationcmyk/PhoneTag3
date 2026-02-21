@@ -97,30 +97,39 @@ struct GameMapView: View {
                             .stroke(.orange.opacity(0.5), lineWidth: 1)
                     }
 
-                    // Safe bases
-                    ForEach(safeBases) { safeBase in
-                        Annotation("Safe", coordinate: safeBase.location) {
-                            Image(systemName: safeBase.type == .hitTag ? "shield.fill" : "shield")
+                    // Safe bases — hits show "[target] tagged!", misses show "Miss"
+                    // Home bases are rendered separately above; filter them out here.
+                    ForEach(safeBases.filter { $0.type != .homeBase }) { safeBase in
+                        let isHit = safeBase.type == .hitTag
+                        let label: String = {
+                            guard isHit else { return "Miss" }
+                            // Prefer target name (who got hit); fall back to tagger name for old data
+                            if let name = safeBase.targetName { return "\(name) tagged!" }
+                            if let name = safeBase.taggerName { return "\(name) tagged!" }
+                            return "Tagged!"
+                        }()
+                        Annotation(label, coordinate: safeBase.location) {
+                            Image(systemName: isHit ? "burst.fill" : "xmark.circle.fill")
                                 .font(.caption)
-                                .foregroundStyle(.yellow)
+                                .foregroundStyle(isHit ? .red : .orange)
                                 .shadow(radius: 2)
                         }
                         // Use the stored radius so hit zones (80m) render larger than miss zones (50m)
                         MapCircle(center: safeBase.location, radius: safeBase.effectiveRadius)
-                            .foregroundStyle(.yellow.opacity(0.1))
-                            .stroke(.yellow.opacity(0.6), lineWidth: 1)
+                            .foregroundStyle(isHit ? .red.opacity(0.08) : .orange.opacity(0.06))
+                            .stroke(isHit ? .red.opacity(0.5) : .orange.opacity(0.4), lineWidth: 1)
                     }
 
-                    // Submitted tags
+                    // In-session submitted tags (ephemeral; backed by safe bases after reload)
                     ForEach(tags) { tag in
                         let coord = CLLocationCoordinate2D(
                             latitude: tag.guessedLocation.latitude,
                             longitude: tag.guessedLocation.longitude
                         )
                         let isHit = tag.isHit
-                        let hitLabel: String = {
+                        let label: String = {
                             if case .hit(_, _, let name) = tag.result {
-                                return "Hit - \(name)"
+                                return "\(name) tagged!"
                             }
                             return "Miss"
                         }()
@@ -128,7 +137,7 @@ struct GameMapView: View {
                             ? GameConstants.basicTagRadius
                             : GameConstants.wideRadiusTagRadius
 
-                        Annotation(hitLabel, coordinate: coord) {
+                        Annotation(label, coordinate: coord) {
                             Image(systemName: isHit ? "burst.fill" : "xmark.circle.fill")
                                 .font(.title3)
                                 .foregroundStyle(isHit ? .red : .orange)

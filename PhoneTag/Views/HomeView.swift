@@ -188,12 +188,14 @@ struct HomeView: View {
             if !viewModel.completedGames.isEmpty {
                 Section("Completed Games") {
                     ForEach(viewModel.completedGames) { game in
-                        GameListRowView(
-                            game: game,
-                            currentUserId: user.id,
-                            playerNames: playerNames
-                        )
-                        .foregroundStyle(.secondary)
+                        NavigationLink(value: game.id) {
+                            GameListRowView(
+                                game: game,
+                                currentUserId: user.id,
+                                playerNames: playerNames
+                            )
+                            .foregroundStyle(.secondary)
+                        }
                     }
                     .onDelete { indexSet in
                         Task {

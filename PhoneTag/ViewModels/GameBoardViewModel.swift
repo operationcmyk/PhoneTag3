@@ -112,6 +112,41 @@ final class GameBoardViewModel {
         return ids
     }
 
+    /// The winner of a completed game: the last remaining active player, or nil if game is still active.
+    var winner: (id: String, name: String)? {
+        guard game.status == .completed else { return nil }
+        guard let winnerId = game.players.first(where: { $0.value.isActive })?.key else { return nil }
+        let name = playerNames[winnerId] ?? "Player"
+        return (id: winnerId, name: name)
+    }
+
+    /// Whether the current user won the completed game.
+    var currentUserWon: Bool {
+        winner?.id == userId
+    }
+
+    /// All players' safe bases across the entire game (for completed game map view).
+    var allPlayersSafeBases: [SafeBase] {
+        game.players.values.flatMap { $0.safeBases }
+    }
+
+    /// All players' home bases for the completed game map view, including the current user.
+    var allPlayersHomeBases: [(name: String, coordinate: CLLocationCoordinate2D, color: Color)] {
+        var results: [(name: String, coordinate: CLLocationCoordinate2D, color: Color)] = []
+        for (playerId, state) in game.players {
+            let name = playerNames[playerId] ?? "Player"
+            let color = playerColorMap[playerId] ?? .blue
+            if let z1 = state.homeBase1 { results.append((name: "\(name) Zone 1", coordinate: z1, color: color)) }
+            if let z2 = state.homeBase2 { results.append((name: "\(name) Zone 2", coordinate: z2, color: color)) }
+        }
+        return results
+    }
+
+    /// All tripwires placed during the game, across all players.
+    var allTripwires: [Tripwire] {
+        game.players.values.flatMap { $0.tripwires }
+    }
+
     init(game: Game, userId: String, gameRepository: any GameRepositoryProtocol, userRepository: any UserRepositoryProtocol, locationService: LocationService) {
         self.game = game
         self.userId = userId

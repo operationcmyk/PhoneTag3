@@ -10,6 +10,12 @@ struct SafeBase: Identifiable, Codable, Sendable {
     /// Radius in metres for collision detection and map display.
     /// Defaults to `safeBaseRadius` if not stored (backward-compat with old data).
     let radius: Double?
+    /// Display name of the player who fired this tag (hits only).
+    var taggerName: String?
+    /// Display name of the player who got hit (hits only, for map label).
+    var targetName: String?
+    /// User ID of the player who fired this tag (set on miss safe bases for duplicate-location detection).
+    var taggerUserId: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -18,6 +24,9 @@ struct SafeBase: Identifiable, Codable, Sendable {
         case type
         case expiresAt
         case radius
+        case taggerName
+        case targetName
+        case taggerUserId
     }
 
     /// Effective radius to use — falls back to the constant for legacy records.

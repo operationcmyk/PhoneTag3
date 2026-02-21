@@ -226,6 +226,15 @@ final class MockGameRepository: GameRepositoryProtocol {
         let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
         let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
 
+        // Block if the tagger is re-tagging a location they already missed in the last 24h
+        let allMisses = game.players.values.flatMap { $0.safeBases }
+            .filter { $0.type == .missedTag && $0.taggerUserId == fromUserId }
+        let isDuplicate = allMisses.contains { miss in
+            let missLocation = CLLocation(latitude: miss.location.latitude, longitude: miss.location.longitude)
+            return guessedCL.distance(from: missLocation) <= miss.effectiveRadius
+        }
+        if isDuplicate { return .blocked(reason: .duplicateLocation) }
+
         var closestDistance = Double.greatestFiniteMagnitude
         var hitPlayerId: String?
 
@@ -273,13 +282,18 @@ final class MockGameRepository: GameRepositoryProtocol {
             }
 
             // Create permanent safe base at target's actual location (basic-tag-sized)
+            let taggerName = playerNames[fromUserId] ?? "Player"
+            let hitTargetName = playerNames[hitId] ?? "Player"
             let permanentBase = SafeBase(
                 id: UUID().uuidString,
                 location: actualCoord,
                 createdAt: Date(),
                 type: .hitTag,
                 expiresAt: nil,
-                radius: GameConstants.basicTagRadius
+                radius: GameConstants.basicTagRadius,
+                taggerName: taggerName,
+                targetName: hitTargetName,
+                taggerUserId: fromUserId
             )
             games[gameIdx].players[hitId]?.safeBases.append(permanentBase)
 
@@ -310,7 +324,9 @@ final class MockGameRepository: GameRepositoryProtocol {
                     createdAt: Date(),
                     type: .missedTag,
                     expiresAt: midnight,
-                    radius: GameConstants.safeBaseRadius
+                    radius: GameConstants.safeBaseRadius,
+                    taggerName: nil,
+                    taggerUserId: fromUserId
                 )
                 games[gameIdx].players[opponentId]?.safeBases.append(tempBase)
             }

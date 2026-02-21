@@ -85,6 +85,7 @@ enum BlockReason: String, Codable, Sendable {
     case safeBase
     case outOfTags
     case playerEliminated
+    case duplicateLocation  // Tagging a spot already missed in the last 24 hours
 }
 
 enum TagType: String, Codable, Sendable {
