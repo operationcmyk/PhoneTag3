@@ -44,7 +44,7 @@ struct ProfileView: View {
 
                     // Phone number — what was used to log in
                     LabeledContent("Phone") {
-                        Text(user.phoneNumber.isEmpty ? "—" : user.phoneNumber)
+                        Text(user.phoneNumber ?? "—")
                             .foregroundStyle(.secondary)
                             .textSelection(.enabled)
                     }

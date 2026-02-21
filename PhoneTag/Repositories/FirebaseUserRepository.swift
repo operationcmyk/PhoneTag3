@@ -95,16 +95,18 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
 
     // MARK: - User Creation (used by AuthService)
 
-    func createUser(uid: String, phoneNumber: String, displayName: String) async throws -> User {
+    func createUser(uid: String, phoneNumber: String?, displayName: String) async throws -> User {
         let userRef = database.child(GameConstants.FirebasePath.users).child(uid)
-        let userData: [String: Any] = [
+        var userData: [String: Any] = [
             "id": uid,
-            "phoneNumber": phoneNumber,
             "displayName": displayName,
             "createdAt": ServerValue.timestamp(),
             "friendIds": [String](),
             "activeGameIds": [String]()
         ]
+        if let phoneNumber {
+            userData["phoneNumber"] = phoneNumber
+        }
         try await userRef.setValue(userData)
         return User(
             id: uid,
@@ -148,7 +150,7 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
     }
 
     private func parseUser(id: String, dict: [String: Any]) -> User {
-        let phoneNumber = dict["phoneNumber"] as? String ?? ""
+        let phoneNumber = dict["phoneNumber"] as? String  // nil for email users
         let displayName = dict["displayName"] as? String ?? "Player"
         let friendIds = Self.parseStringArray(dict["friendIds"])
         let activeGameIds = Self.parseStringArray(dict["activeGameIds"])

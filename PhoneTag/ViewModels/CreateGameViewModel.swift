@@ -85,7 +85,7 @@ final class CreateGameViewModel {
         }
 
         let deviceContacts = await contactsService.fetchContacts()
-        let friendPhones = Set(appFriends.map(\.phoneNumber))
+        let friendPhones = Set(appFriends.compactMap(\.phoneNumber))
 
         // All unique normalized phone numbers from device contacts
         let allContactPhones = Array(
@@ -100,8 +100,8 @@ final class CreateGameViewModel {
         appContacts = onAppUsers.filter { $0.id != userId && !knownIds.contains($0.id) }
 
         // On-app phone numbers (for exclusion from off-app list)
-        let recentPlayerPhones = Set(recentPlayers.map(\.phoneNumber))
-        let onAppPhones = Set(onAppUsers.map(\.phoneNumber))
+        let recentPlayerPhones = Set(recentPlayers.compactMap(\.phoneNumber))
+        let onAppPhones = Set(onAppUsers.compactMap(\.phoneNumber))
             .union(friendPhones)
             .union(recentPlayerPhones)
 

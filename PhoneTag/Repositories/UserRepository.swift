@@ -4,17 +4,19 @@ import Foundation
 actor UserRepository {
     private let database = Database.database().reference()
 
-    func createUser(uid: String, phoneNumber: String, displayName: String) async throws -> User {
+    func createUser(uid: String, phoneNumber: String?, displayName: String) async throws -> User {
         let userRef = database.child(GameConstants.FirebasePath.users).child(uid)
 
-        let userData: [String: Any] = [
+        var userData: [String: Any] = [
             "id": uid,
-            "phoneNumber": phoneNumber,
             "displayName": displayName,
             "createdAt": ServerValue.timestamp(),
             "friendIds": [String](),
             "activeGameIds": [String]()
         ]
+        if let phoneNumber {
+            userData["phoneNumber"] = phoneNumber
+        }
 
         try await userRef.setValue(userData)
 
@@ -40,7 +42,7 @@ actor UserRepository {
         }
 
         let id = dict["id"] as? String ?? uid
-        let phoneNumber = dict["phoneNumber"] as? String ?? ""
+        let phoneNumber = dict["phoneNumber"] as? String
         let displayName = dict["displayName"] as? String ?? ""
         let friendIds = dict["friendIds"] as? [String] ?? []
         let activeGameIds = dict["activeGameIds"] as? [String] ?? []

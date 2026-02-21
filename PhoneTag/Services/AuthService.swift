@@ -5,7 +5,7 @@ import Foundation
 enum AuthState: Sendable {
     case unknown
     case unauthenticated
-    case needsDisplayName(uid: String, phoneNumber: String)  // first login, no profile yet
+    case needsDisplayName(uid: String, phoneNumber: String?)  // first login, no profile yet
     case authenticated(User)
 }
 
@@ -50,7 +50,7 @@ final class AuthService {
             // First login — prompt the user to choose a display name
             authState = .needsDisplayName(
                 uid: firebaseUser.uid,
-                phoneNumber: firebaseUser.phoneNumber ?? ""
+                phoneNumber: firebaseUser.phoneNumber
             )
         }
     }
@@ -116,6 +116,32 @@ final class AuthService {
         isLoading = false
     }
 
+    // MARK: - Email Auth
+
+    func signInWithEmail(email: String, password: String) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await Auth.auth().signIn(withEmail: email, password: password)
+            // Auth state listener will fire and update authState
+        } catch {
+            errorMessage = friendlyAuthError(error)
+        }
+        isLoading = false
+    }
+
+    func registerWithEmail(email: String, password: String) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await Auth.auth().createUser(withEmail: email, password: password)
+            // Auth state listener will fire → needsDisplayName since no profile exists yet
+        } catch {
+            errorMessage = friendlyAuthError(error)
+        }
+        isLoading = false
+    }
+
     // MARK: - Profile Updates
 
     /// Updates the display name in Firebase and refreshes the local auth state.
@@ -157,5 +183,21 @@ final class AuthService {
 
     var currentUserId: String? {
         currentUser?.id
+    }
+
+    // MARK: - Private
+
+    private func friendlyAuthError(_ error: Error) -> String {
+        let nsError = error as NSError
+        // Firebase Auth error codes are in the AuthErrors domain
+        switch nsError.code {
+        case 17004: return "Invalid email or password."
+        case 17007: return "An account with this email already exists."
+        case 17008: return "Please enter a valid email address."
+        case 17009: return "Incorrect password. Please try again."
+        case 17011: return "No account found with this email."
+        case 17026: return "Password must be at least 6 characters."
+        default:    return error.localizedDescription
+        }
     }
 }

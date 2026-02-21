@@ -66,7 +66,7 @@ final class MockUserRepository: UserRepositoryProtocol {
         let lowered = query.lowercased()
         return users.filter {
             $0.displayName.lowercased().contains(lowered) ||
-            $0.phoneNumber.contains(lowered)
+            ($0.phoneNumber?.contains(lowered) ?? false)
         }
     }
 
@@ -83,7 +83,10 @@ final class MockUserRepository: UserRepositoryProtocol {
     }
 
     func fetchUsersByPhones(_ phones: [String]) async -> [User] {
-        users.filter { user in phones.contains(user.phoneNumber) }
+        users.filter { user in
+            guard let phone = user.phoneNumber else { return false }
+            return phones.contains(phone)
+        }
     }
 
     func addFriend(userId: String, friendPhone: String) async -> String? {

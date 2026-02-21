@@ -19,7 +19,14 @@
       "Bash(source \"$NVM_DIR/nvm.sh\")",
       "Bash(. ~/.nvm/nvm.sh)",
       "Bash(sudo xcode-select:*)",
-      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild:*)"
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild:*)",
+      "Bash(ls:*)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild:*)",
+      "Bash(bash -c \"DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme PhoneTag -destination ''generic/platform=iOS Simulator'' build 2>&1 | grep -E ''error:|BUILD SUCCEEDED|BUILD FAILED'' | head -30\")",
+      "Bash(plutil:*)",
+      "Bash(python3:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
