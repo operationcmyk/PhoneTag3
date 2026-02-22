@@ -10,6 +10,10 @@ struct Game: Identifiable, Codable, Sendable {
     var status: GameStatus
     var startedAt: Date?
     var endedAt: Date?
+    /// When a nudge was issued. Used to determine which logins count as "after the nudge".
+    var nudgeIssuedAt: Date?
+    /// Deadline by which all players must log in or lose a life (nudgeIssuedAt + 6h).
+    var nudgeDeadlineAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -21,6 +25,8 @@ struct Game: Identifiable, Codable, Sendable {
         case status
         case startedAt
         case endedAt
+        case nudgeIssuedAt
+        case nudgeDeadlineAt
     }
 }
 

@@ -248,6 +248,9 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
             return .blocked(reason: .outOfTags)
         }
 
+        let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
+        let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
+
         // Check availability and decrement
         switch tagType {
         case .basic:
@@ -265,8 +268,58 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
         await updatePlayerState(gameId: gameId, userId: fromUserId, state: taggerState)
         game.players[fromUserId] = taggerState
 
-        let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
-        let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
+        // Self-bomb: if the guess lands on the tagger's own location, they take the hit themselves.
+        if let taggerCoord = await fetchPlayerLocation(userId: fromUserId) {
+            let taggerCL = CLLocation(latitude: taggerCoord.latitude, longitude: taggerCoord.longitude)
+            if guessedCL.distance(from: taggerCL) <= tagRadius {
+                taggerState.strikes = max(0, taggerState.strikes - 1)
+                if taggerState.strikes == 0 { taggerState.isActive = false }
+
+                let taggerName = await fetchDisplayName(userId: fromUserId)
+                let permanentBase = SafeBase(
+                    id: UUID().uuidString,
+                    location: taggerCoord,
+                    createdAt: Date(),
+                    type: .hitTag,
+                    expiresAt: nil,
+                    radius: GameConstants.basicTagRadius,
+                    taggerName: taggerName,
+                    targetName: taggerName
+                )
+                taggerState.safeBases.append(permanentBase)
+                await updatePlayerState(gameId: gameId, userId: fromUserId, state: taggerState)
+                await checkAndCompleteGame(gameId: gameId)
+
+                let allPlayerIds = Array(game.players.keys)
+                if taggerState.strikes == 0 {
+                    Task {
+                        await NotificationService.shared.sendEliminationNotification(
+                            gameId: gameId,
+                            gameTitle: game.title,
+                            eliminatedPlayerName: taggerName,
+                            playerIds: allPlayerIds,
+                            eliminatedId: fromUserId
+                        )
+                    }
+                } else {
+                    Task {
+                        await NotificationService.shared.sendHitNotification(
+                            to: fromUserId,
+                            taggerName: taggerName,
+                            tagType: tagType,
+                            gameId: gameId,
+                            gameTitle: game.title
+                        )
+                    }
+                }
+
+                return .hit(
+                    actualLocation: GeoPoint(latitude: taggerCoord.latitude, longitude: taggerCoord.longitude),
+                    distance: 0,
+                    targetName: taggerName
+                )
+            }
+        }
 
         // Block if the tagger is trying to re-tag a location they already missed in the last 24h.
         // Miss safe bases are stored on opponent states but tagged with the tagger's userId.
@@ -496,6 +549,30 @@ final class FirebaseGameRepository: GameRepositoryProtocol {
 
         let playerName = await fetchDisplayName(userId: userId)
         return (playerName: playerName, wasEliminated: state.strikes == 0)
+    }
+
+    // MARK: - Nudge Deadline
+
+    func setNudgeDeadline(gameId: String) async {
+        let nowMs = Date().timeIntervalSince1970 * 1000
+        let deadlineMs = nowMs + GameConstants.nudgeResponseWindow * 1000
+        do {
+            let gameRef = database.child(GameConstants.FirebasePath.games).child(gameId)
+            try await gameRef.child("nudgeIssuedAt").setValue(nowMs)
+            try await gameRef.child("nudgeDeadlineAt").setValue(deadlineMs)
+        } catch {
+            print("❌ [FirebaseGameRepository] Failed to set nudge deadline: \(error)")
+        }
+    }
+
+    func clearNudgeDeadline(gameId: String) async {
+        do {
+            let gameRef = database.child(GameConstants.FirebasePath.games).child(gameId)
+            try await gameRef.child("nudgeIssuedAt").setValue(NSNull())
+            try await gameRef.child("nudgeDeadlineAt").setValue(NSNull())
+        } catch {
+            print("❌ [FirebaseGameRepository] Failed to clear nudge deadline: \(error)")
+        }
     }
 
     // MARK: - Tripwire Hit

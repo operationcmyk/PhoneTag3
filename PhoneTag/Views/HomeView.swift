@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var playerNames: [String: String] = [:]
     @State private var nudgingGameId: String? = nil
     @State private var nudgeConfirmationGame: Game? = nil
+    @State private var showingRules = false
 
     var body: some View {
         NavigationStack {
@@ -46,6 +47,9 @@ struct HomeView: View {
                     }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button("Tutorial") {
+                        showingRules = true
+                    }
                     Button {
                         showingAddFriend = true
                     } label: {
@@ -69,6 +73,16 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showingProfile) {
                 ProfileView(user: user, authService: authService)
+            }
+            .sheet(isPresented: $showingRules) {
+                NavigationStack {
+                    RulesView()
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Done") { showingRules = false }
+                            }
+                        }
+                }
             }
             .sheet(isPresented: $showingJoinGame) {
                 JoinGameView(
@@ -138,7 +152,7 @@ struct HomeView: View {
                     }
                 }
             } message: {
-                Text("This will send a push notification to all other players to remind them to play.")
+                Text("All other players will have 6 hours to log in or they lose a life.")
             }
         }
     }
@@ -211,6 +225,8 @@ struct HomeView: View {
     }
 
     private func sendNudge(for game: Game) async {
+        // Record the nudge deadline in Firebase first so the check loop can enforce it.
+        await gameRepository.setNudgeDeadline(gameId: game.id)
         await NotificationService.shared.sendNudgeNotifications(
             gameId: game.id,
             gameTitle: game.title,

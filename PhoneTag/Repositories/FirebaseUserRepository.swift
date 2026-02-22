@@ -7,16 +7,34 @@ final class FirebaseUserRepository: UserRepositoryProtocol {
 
     // MARK: - UserRepositoryProtocol
 
-    func fetchUser(_ id: String) async -> User? {
+    /// Fetches the user profile from Firebase.
+    /// Returns `.found(User)` when the profile exists, `.notFound` when the UID has no profile
+    /// (new user), or `.error` when the network/Firebase call itself failed (don't treat as new user).
+    enum FetchResult {
+        case found(User)
+        case notFound
+        case error
+    }
+
+    func fetchUserResult(_ id: String) async -> FetchResult {
         do {
             let snapshot = try await database
                 .child(GameConstants.FirebasePath.users)
                 .child(id)
                 .getData()
-            guard snapshot.exists(), let dict = snapshot.value as? [String: Any] else { return nil }
-            return parseUser(id: id, dict: dict)
+            guard snapshot.exists(), let dict = snapshot.value as? [String: Any] else {
+                return .notFound
+            }
+            return .found(parseUser(id: id, dict: dict))
         } catch {
-            return nil
+            return .error
+        }
+    }
+
+    func fetchUser(_ id: String) async -> User? {
+        switch await fetchUserResult(id) {
+        case .found(let user): return user
+        case .notFound, .error: return nil
         }
     }
 

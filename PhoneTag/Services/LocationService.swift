@@ -153,12 +153,17 @@ final class LocationService: NSObject, Sendable {
     // MARK: - Game Lifecycle
 
     /// Call when a game becomes active. Sets up appropriate monitoring.
+    /// If the user hasn't granted Always permission yet, requests it now so that
+    /// background geofencing and significant-location-change monitoring work reliably.
     func startGameTracking() {
         if hasAlwaysPermission {
             enableBackgroundUpdates()
             startMonitoringSignificantChanges()
         } else {
-            // Fall back to foreground-only updates
+            // Request Always permission. iOS shows the system prompt (or, if the user
+            // previously chose When In Use, the "Change to Always Allow" prompt).
+            // Fall back to foreground-only updates in the meantime.
+            requestAlwaysAuthorization()
             startUpdatingLocation()
         }
     }
@@ -202,6 +207,12 @@ extension LocationService: CLLocationManagerDelegate {
         let status = manager.authorizationStatus
         Task { @MainActor in
             self.authorizationStatus = status
+            // If the user just granted Always permission while a game is active,
+            // upgrade from foreground-only to full background monitoring immediately.
+            if status == .authorizedAlways {
+                self.enableBackgroundUpdates()
+                self.startMonitoringSignificantChanges()
+            }
         }
     }
 

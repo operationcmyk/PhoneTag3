@@ -43,15 +43,22 @@ final class AuthService {
     }
 
     private func loadUser(firebaseUser: FirebaseAuth.User) async {
-        if let user = await userRepository.fetchUser(firebaseUser.uid) {
+        switch await userRepository.fetchUserResult(firebaseUser.uid) {
+        case .found(let user):
             authState = .authenticated(user)
             await setupNotifications(for: user.id)
-        } else {
-            // First login — prompt the user to choose a display name
+        case .notFound:
+            // Confirmed new user — no profile exists yet, ask for a display name
             authState = .needsDisplayName(
                 uid: firebaseUser.uid,
                 phoneNumber: firebaseUser.phoneNumber
             )
+        case .error:
+            // Network/Firebase error — don't show the name screen for existing users.
+            // If already authenticated keep that state; otherwise stay on the loading spinner
+            // and let the auth listener retry naturally when connectivity returns.
+            if case .authenticated = authState { return }
+            authState = .unknown
         }
     }
 

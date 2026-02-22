@@ -11,6 +11,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Phone Tag uses your location to let other players tag you and to show your position on the map.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Allowing "Always" lets Phone Tag detect tripwires and update your location in the background, even when the app is closed. This is needed while a game is active.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

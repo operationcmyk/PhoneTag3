@@ -362,8 +362,12 @@ final class GameBoardViewModel {
     /// The real circle is placed exactly on the target — the 61m radius is the ambiguity.
     /// The decoy circle is placed 300–800m away so the viewer can't easily tell which is real.
     static func buildRadarResult(actualLocation: CLLocationCoordinate2D, targetName: String) -> RadarResult {
-        // Circle A: real circle — centred exactly on the target's location
-        let realCircleCenter = actualLocation
+        // Circle A: real circle — jittered so the target is somewhere inside the circle,
+        // not predictably at the centre. Offset the centre by a random distance (up to 80%
+        // of the radius) in a random direction, keeping the target within the circle.
+        let jitterDistance = Double.random(in: 0...(GameConstants.radarRadius * 0.8))
+        let jitterBearing = Double.random(in: 0..<360)
+        let realCircleCenter = offsetCoordinate(actualLocation, distanceMeters: jitterDistance, bearingDegrees: jitterBearing)
 
         // Circle B: decoy placed 300–800m away in a random direction
         let decoyDistance = Double.random(in: GameConstants.radarDecoyMinDistance...GameConstants.radarDecoyMaxDistance)
@@ -476,6 +480,21 @@ final class GameBoardViewModel {
         if game.status == .active {
             locationService.startGameTracking()
             setupTripwireGeofences()
+        }
+
+        // Always re-center on the user when the board appears — especially important
+        // during home base setup so they aren't dropped into a world-level zoom.
+        hasCenteredOnUser = false
+
+        // If we already have a location, center immediately rather than waiting for
+        // the next update event (which can be delayed or never fire if the OS has
+        // a cached fix but doesn't emit a new one right away).
+        if let location = locationService.currentLocation {
+            hasCenteredOnUser = true
+            cameraPosition = .region(MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.007, longitudeDelta: 0.007)
+            ))
         }
     }
 

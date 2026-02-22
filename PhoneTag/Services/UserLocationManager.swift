@@ -135,11 +135,32 @@ final class UserLocationManager: ObservableObject {
         let activeGames = games.filter { $0.status == .active }
         guard !activeGames.isEmpty else { return }
 
-        let nowMs = Date().timeIntervalSince1970 * 1000
+        let now = Date()
+        let nowMs = now.timeIntervalSince1970 * 1000
 
         for game in activeGames {
             let activePlayers = game.players.filter { $0.value.isActive }.map { $0.key }
 
+            // MARK: Nudge deadline enforcement
+            // If the 6-hour window has expired, penalise every active player who hasn't
+            // logged in since the nudge was issued, then clear so it only fires once.
+            if let deadline = game.nudgeDeadlineAt, let issuedAt = game.nudgeIssuedAt,
+               now >= deadline {
+                let nudgeIssuedMs = issuedAt.timeIntervalSince1970 * 1000
+                // Clear immediately so other devices' check loops don't double-penalise.
+                await gameRepository.clearNudgeDeadline(gameId: game.id)
+
+                for playerId in activePlayers {
+                    let lastUploadMs = await locationRepository.fetchLastUploadedAt(userId: playerId)
+                    // Penalise if they've never uploaded OR last uploaded before the nudge.
+                    if (lastUploadMs ?? 0) < nudgeIssuedMs {
+                        print("⏰ [UserLocationManager] Nudge expired: \(playerId) didn't log in — deducting strike in game \(game.id)")
+                        await applyNudgePenalty(playerId: playerId, game: game)
+                    }
+                }
+            }
+
+            // MARK: Standard 48h inactivity enforcement
             for playerId in activePlayers where playerId != currentUserId {
                 guard let lastUploadMs = await locationRepository.fetchLastUploadedAt(userId: playerId) else {
                     continue  // Player has never uploaded — no data to act on
@@ -181,6 +202,28 @@ final class UserLocationManager: ObservableObject {
                     )
                 }
             }
+        }
+    }
+
+    private func applyNudgePenalty(playerId: String, game: Game) async {
+        guard let result = await gameRepository.deductStrikeForInactivity(gameId: game.id, userId: playerId) else { return }
+        let allPlayerIds = game.players.map { $0.key }
+        if result.wasEliminated {
+            await NotificationService.shared.sendEliminationNotification(
+                gameId: game.id,
+                gameTitle: game.title,
+                eliminatedPlayerName: result.playerName,
+                playerIds: allPlayerIds,
+                eliminatedId: playerId
+            )
+        } else {
+            await NotificationService.shared.sendOfflineStrikeLostNotification(
+                offlinePlayerName: result.playerName,
+                gameId: game.id,
+                gameTitle: game.title,
+                playerIds: allPlayerIds,
+                offlinePlayerId: playerId
+            )
         }
     }
 

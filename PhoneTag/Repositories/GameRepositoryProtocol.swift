@@ -20,6 +20,12 @@ protocol GameRepositoryProtocol {
     /// Returns the player's name and whether they were eliminated (strikes hit 0).
     func deductStrikeForInactivity(gameId: String, userId: String) async -> (playerName: String, wasEliminated: Bool)?
 
+    /// Records a nudge on a game: sets nudgeIssuedAt to now and nudgeDeadlineAt to now + 6h.
+    func setNudgeDeadline(gameId: String) async
+
+    /// Clears the nudge deadline after it has been processed so it doesn't fire again.
+    func clearNudgeDeadline(gameId: String) async
+
     /// Called when the current user crosses another player's tripwire.
     /// Deducts a strike from the triggered user, creates a permanent safe zone at the tripwire
     /// location, removes the tripwire, and sends appropriate notifications.

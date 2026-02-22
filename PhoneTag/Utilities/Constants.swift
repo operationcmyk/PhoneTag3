@@ -50,6 +50,9 @@ enum GameConstants {
     static let radarDecoyMinDistance: CLLocationDistance = 1500  // min metres between real and decoy centres
     static let radarDecoyMaxDistance: CLLocationDistance = 3000  // max metres between real and decoy centres
 
+    // Nudge Settings
+    static let nudgeResponseWindow: TimeInterval = 6 * 3600  // 6 hours to log in after a nudge
+
     // Location Update Settings
     static let significantLocationChangeDistance: CLLocationDistance = 100
     static let backgroundLocationUpdateInterval: TimeInterval = 300 // 5 minutes

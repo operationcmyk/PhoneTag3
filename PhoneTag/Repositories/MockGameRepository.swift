@@ -209,6 +209,9 @@ final class MockGameRepository: GameRepositoryProtocol {
             return .blocked(reason: .outOfTags)
         }
 
+        let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
+        let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
+
         switch tagType {
         case .basic:
             let available = taggerState.tagsRemainingToday + taggerState.purchasedTags.extraBasicTags
@@ -223,8 +226,35 @@ final class MockGameRepository: GameRepositoryProtocol {
             games[gameIdx].players[fromUserId]?.purchasedTags.wideRadiusTags -= 1
         }
 
-        let guessedCL = CLLocation(latitude: guessedLocation.latitude, longitude: guessedLocation.longitude)
-        let tagRadius = tagType == .basic ? GameConstants.basicTagRadius : GameConstants.wideRadiusTagRadius
+        // Self-bomb: if the guess lands on the tagger's own location, they take the hit themselves.
+        if let taggerCoord = playerLocations[fromUserId] {
+            let taggerCL = CLLocation(latitude: taggerCoord.latitude, longitude: taggerCoord.longitude)
+            if guessedCL.distance(from: taggerCL) <= tagRadius {
+                let taggerName = playerNames[fromUserId] ?? "Player"
+                games[gameIdx].players[fromUserId]?.strikes -= 1
+                if let newStrikes = games[gameIdx].players[fromUserId]?.strikes, newStrikes <= 0 {
+                    games[gameIdx].players[fromUserId]?.isActive = false
+                    checkGameCompletion(gameIdx: gameIdx)
+                }
+                let permanentBase = SafeBase(
+                    id: UUID().uuidString,
+                    location: taggerCoord,
+                    createdAt: Date(),
+                    type: .hitTag,
+                    expiresAt: nil,
+                    radius: GameConstants.basicTagRadius,
+                    taggerName: taggerName,
+                    targetName: taggerName,
+                    taggerUserId: fromUserId
+                )
+                games[gameIdx].players[fromUserId]?.safeBases.append(permanentBase)
+                return .hit(
+                    actualLocation: GeoPoint(latitude: taggerCoord.latitude, longitude: taggerCoord.longitude),
+                    distance: 0,
+                    targetName: taggerName
+                )
+            }
+        }
 
         // Block if the tagger is re-tagging a location they already missed in the last 24h
         let allMisses = game.players.values.flatMap { $0.safeBases }
@@ -419,6 +449,19 @@ final class MockGameRepository: GameRepositoryProtocol {
         games[idx].players[userId] = state
         let name = playerNames[userId] ?? "Player"
         return (playerName: name, wasEliminated: state.strikes == 0)
+    }
+
+    func setNudgeDeadline(gameId: String) async {
+        guard let idx = games.firstIndex(where: { $0.id == gameId }) else { return }
+        let now = Date()
+        games[idx].nudgeIssuedAt = now
+        games[idx].nudgeDeadlineAt = now.addingTimeInterval(GameConstants.nudgeResponseWindow)
+    }
+
+    func clearNudgeDeadline(gameId: String) async {
+        guard let idx = games.firstIndex(where: { $0.id == gameId }) else { return }
+        games[idx].nudgeIssuedAt = nil
+        games[idx].nudgeDeadlineAt = nil
     }
 
     func processTripwireHit(tripwireId: String, gameId: String, triggeredByUserId: String) async -> TagResult? {

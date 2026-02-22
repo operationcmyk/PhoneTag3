@@ -216,8 +216,8 @@ final class NotificationService: NSObject, ObservableObject {
         guard !tokens.isEmpty else { return }
         await send(
             to: tokens,
-            title: "Phone Tag — Your turn!",
-            body: "\(nudgedByName) is waiting for you in \"\(gameTitle)\". Get out there!",
+            title: "⏰ Phone Tag — Log in or lose a life!",
+            body: "\(nudgedByName) nudged everyone in \"\(gameTitle)\". Log in within 6 hours or lose a life!",
             data: ["type": "nudge", "gameId": gameId, "gameTitle": gameTitle],
             logLabel: "Nudge (\(gameId))"
         )
